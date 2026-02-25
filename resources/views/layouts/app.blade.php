@@ -14,7 +14,9 @@
         .navbar a:hover { text-decoration: underline; }
         .navbar-logo { padding: 0; line-height: 0; }
         .navbar-logo:hover { text-decoration: none; opacity: 0.9; }
-        .navbar-logo img { width: 32px; height: 32px; object-fit: contain; vertical-align: middle; }
+        .navbar-logo-wrap { display: flex; flex-direction: row; align-items: flex-end; gap: 0.35rem; margin-right: 0.25rem; }
+        .navbar-logo img { width: 32px; height: 32px; object-fit: contain; display: block; }
+        .navbar-version { font-size: 0.625rem; color: #374151; line-height: 1; padding-bottom: 2px; }
         body { min-height: 100vh; background: #f9fafb; margin: 0; font-family: system-ui, sans-serif; }
         main { max-width: none; margin: 0 auto; padding: 1rem; }
         .schemat-strona { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 100%; }
@@ -71,9 +73,12 @@
 <body>
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="{{ url('/') }}" class="navbar-logo" aria-label="Nivo – strona główna">
-                <img src="{{ asset('storage/nivo.png') }}" alt="Nivo" width="32" height="32" style="display: block;">
-            </a>
+            <div class="navbar-logo-wrap">
+                <a href="{{ url('/') }}" class="navbar-logo" aria-label="Nivo – strona główna">
+                    <img src="{{ asset('storage/nivo.png') }}" alt="Nivo" width="32" height="32" style="display: block;">
+                </a>
+                <span class="navbar-version" title="Wersja aplikacji">{{ $appVersion ?? '1' }}</span>
+            </div>
             <a href="{{ url('/') }}">Nivo</a>
             @if(!session('uzytkownik_id'))
                 <a href="{{ route('cennik') }}">Cennik</a>
