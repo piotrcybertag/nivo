@@ -36,6 +36,18 @@
             @enderror
         </div>
         <div style="margin-bottom: 1rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="hidden" name="grupa" value="0">
+                <input type="checkbox" name="grupa" id="grupa" value="1" {{ old('grupa', $pracownik->grupa) ? 'checked' : '' }}
+                       style="width: 1.125rem; height: 1.125rem;">
+                <span style="font-weight: 500;">Grupa</span>
+            </label>
+            <p style="margin: 0.25rem 0 0; font-size: 0.8125rem; color: #6b7280;">Pozycja grupowa — nie wlicza się do sumy pracowników (limit planu).</p>
+            @error('grupa')
+                <span style="color: #dc2626; font-size: 0.875rem;">{{ $message }}</span>
+            @enderror
+        </div>
+        <div style="margin-bottom: 1rem;">
             <label for="id_szefa" style="display: block; font-weight: 500; margin-bottom: 0.25rem;">Szef (linia)</label>
             <select name="id_szefa" id="id_szefa" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
                 <option value="">— brak —</option>

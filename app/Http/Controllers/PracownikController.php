@@ -42,9 +42,11 @@ class PracownikController extends Controller
             'imie' => 'required|string|max:255',
             'nazwisko' => 'required|string|max:255',
             'stanowisko' => 'required|string|max:255',
+            'grupa' => 'boolean',
             'id_szefa' => 'nullable|exists:' . $tabela . ',id',
             'szef_matrix' => 'nullable|exists:' . $tabela . ',id',
         ]);
+        $validated['grupa'] = $request->boolean('grupa');
 
         Pracownik::create($validated);
         return redirect()->route('kartoteki.pracownicy.index')->with('success', 'Pracownik został dodany.');
@@ -70,9 +72,11 @@ class PracownikController extends Controller
             'imie' => 'required|string|max:255',
             'nazwisko' => 'required|string|max:255',
             'stanowisko' => 'required|string|max:255',
+            'grupa' => 'boolean',
             'id_szefa' => 'nullable|exists:' . $tabela . ',id',
             'szef_matrix' => 'nullable|exists:' . $tabela . ',id',
         ]);
+        $validated['grupa'] = $request->boolean('grupa');
 
         $pracownik->update($validated);
         return redirect()->route('kartoteki.pracownicy.index')->with('success', 'Pracownik został zaktualizowany.');

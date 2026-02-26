@@ -4,6 +4,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PracownikController;
 use App\Http\Controllers\UzytkownikController;
 use App\Models\Pracownik;
+use App\Services\PracownicyTableService;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -81,6 +82,7 @@ Route::get('/schemat', function () {
         'podwladni' => fn ($q) => $q->orderBy('nazwisko')->orderBy('imie')->withCount('podwladni')->withCount('podwladniMatrix'),
         'podwladniMatrix' => fn ($q) => $q->orderBy('nazwisko')->orderBy('imie')->withCount('podwladni')->withCount('podwladniMatrix'),
     ];
+    $svc = app(PracownicyTableService::class);
     if ($pracownikId) {
         $root = Pracownik::withCount('podwladni')->withCount('podwladniMatrix')
             ->with(array_merge($withPodwladni, ['szef', 'szefMatrix']))
@@ -91,10 +93,18 @@ Route::get('/schemat', function () {
         $korzenie = collect([$root]);
         $nadSzefowie = [];
         if ($root->szef) {
-            $nadSzefowie[] = ['pracownik' => $root->szef, 'typ' => 'linia'];
+            $nadSzefowie[] = [
+                'pracownik' => $root->szef,
+                'typ' => 'linia',
+                'liczba_pracownikow' => $svc->countPracownikowWStrukturze([$root->szef->id]),
+            ];
         }
         if ($root->szefMatrix) {
-            $nadSzefowie[] = ['pracownik' => $root->szefMatrix, 'typ' => 'matrix'];
+            $nadSzefowie[] = [
+                'pracownik' => $root->szefMatrix,
+                'typ' => 'matrix',
+                'liczba_pracownikow' => $svc->countPracownikowWStrukturze([$root->szefMatrix->id]),
+            ];
         }
     } else {
         $korzenie = Pracownik::withCount('podwladni')->withCount('podwladniMatrix')
@@ -109,17 +119,19 @@ Route::get('/schemat', function () {
         $calkowita = 0;
         foreach ($pracownik->podwladni ?? [] as $pod) {
             $ustawCalkowitaLiczbePodwladnych($pod);
-            $calkowita += 1 + ($pod->total_podwladni_count ?? 0);
+            $calkowita += ($pod->grupa ? 0 : 1) + ($pod->total_podwladni_count ?? 0);
         }
         foreach ($pracownik->podwladniMatrix ?? [] as $pod) {
             $ustawCalkowitaLiczbePodwladnych($pod);
-            $calkowita += 1 + ($pod->total_podwladni_count ?? 0);
+            $calkowita += ($pod->grupa ? 0 : 1) + ($pod->total_podwladni_count ?? 0);
         }
         $pracownik->total_podwladni_count = $calkowita;
     };
     foreach ($korzenie as $k) {
         $ustawCalkowitaLiczbePodwladnych($k);
     }
+
+    $totalPracownikow = $svc->countPracownikowWStrukturze($korzenie->pluck('id')->toArray());
 
     $szukaj = request('szukaj', '');
     $wynikiWyszukiwania = collect();
@@ -131,7 +143,7 @@ Route::get('/schemat', function () {
             ->limit(50)
             ->get();
     }
-    return view('schemat', compact('korzenie', 'nadSzefowie', 'szukaj', 'wynikiWyszukiwania'));
+    return view('schemat', compact('korzenie', 'nadSzefowie', 'szukaj', 'wynikiWyszukiwania', 'totalPracownikow'));
 })->name('schemat');
 
 Route::get('/przeglad', function () {

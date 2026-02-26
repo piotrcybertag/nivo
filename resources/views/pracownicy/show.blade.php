@@ -32,6 +32,10 @@
                 <dd style="margin: 0.25rem 0 0; font-size: 1rem;">{{ $pracownik->stanowisko }}</dd>
             </div>
             <div>
+                <dt style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">Grupa</dt>
+                <dd style="margin: 0.25rem 0 0; font-size: 1rem;">{{ $pracownik->grupa ? 'Tak' : 'Nie' }}</dd>
+            </div>
+            <div>
                 <dt style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">Id szefa</dt>
                 <dd style="margin: 0.25rem 0 0; font-size: 1rem;">{{ $pracownik->id_szefa ?? '—' }}</dd>
             </div>

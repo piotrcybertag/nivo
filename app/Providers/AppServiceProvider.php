@@ -20,10 +20,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $versionFile = base_path('versions.txt');
-        $appVersion = (is_file($versionFile) && ($v = trim((string) file_get_contents($versionFile))) !== '')
-            ? $v
-            : '1';
-        View::share('appVersion', $appVersion);
+        View::share('appVersion', app()->runningInConsole() ? '1' : $this->readVersion());
+    }
+
+    private function readVersion(): string
+    {
+        try {
+            $path = base_path('versions.txt');
+            if ($path !== '' && is_file($path) && ($v = file_get_contents($path)) !== false && ($t = trim($v)) !== '') {
+                return $t;
+            }
+        } catch (\Throwable $e) {
+        }
+        return '1';
     }
 }

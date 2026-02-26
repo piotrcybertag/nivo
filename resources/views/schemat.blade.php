@@ -35,8 +35,11 @@
                         <svg class="org-lines-svg" aria-hidden="true"></svg>
                         <div class="org-nad-szefem-row">
                             @foreach($nadSzefowie as $s)
-                                <a href="{{ route('schemat', ['pracownik' => $s['pracownik']->id]) }}" class="schemat-box org-box org-box-nad-szefem org-box--clickable {{ $s['typ'] === 'matrix' ? 'org-box--matrix' : '' }}">
-                                    <div class="schemat-name">{{ $s['pracownik']->imie }} {{ $s['pracownik']->nazwisko }}{{ $s['typ'] === 'matrix' ? ' (M)' : '' }}</div>
+                                <a href="{{ route('schemat', ['pracownik' => $s['pracownik']->id]) }}" class="schemat-box org-box org-box-nad-szefem org-box--clickable {{ $s['typ'] === 'matrix' ? 'org-box--matrix' : '' }} {{ $s['pracownik']->grupa ? 'org-box--grupa' : '' }}">
+                                    @if(($s['liczba_pracownikow'] ?? 0) > 0)
+                                        <div class="schemat-pracownicy-total">{{ $s['liczba_pracownikow'] }} pracowników</div>
+                                    @endif
+                                    <div class="schemat-name">{{ $s['pracownik']->imie }} {{ $s['pracownik']->nazwisko }}{{ $s['typ'] === 'matrix' ? ' (M)' : '' }}{{ $s['pracownik']->grupa ? ' · Grupa' : '' }}</div>
                                     <div class="schemat-stanowisko">{{ $s['pracownik']->stanowisko }}</div>
                                 </a>
                             @endforeach
@@ -50,6 +53,9 @@
                 @else
                     <div class="org-nad-szefem-row">
                         <div class="schemat-box org-box org-box-nad-szefem">
+                            @if($totalPracownikow > 0)
+                                <div class="schemat-pracownicy-total">{{ $totalPracownikow }} pracowników</div>
+                            @endif
                             <div class="schemat-name">{{ session('uzytkownik_typ') ?: '—' }}</div>
                         </div>
                     </div>

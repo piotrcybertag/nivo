@@ -6,10 +6,6 @@
 <div style="max-width: 36rem; margin: 0 auto; padding: 2rem 1rem;">
     <h1 style="font-size: 1.75rem; font-weight: 600; color: #111; margin-bottom: 1.5rem;">Przejdź na plan Full</h1>
 
-    @if (session('success'))
-        <p style="padding: 0.75rem 1rem; background: #d1fae8; color: #065f46; border-radius: 0.375rem; margin-bottom: 1.5rem;">{{ session('success') }}</p>
-    @endif
-
     <div style="background: #fff; border: 2px solid #1e40af; border-radius: 0.75rem; padding: 1.75rem; box-shadow: 0 4px 12px rgba(30,64,175,0.12);">
         <div style="font-size: 1.25rem; font-weight: 700; color: #1e40af; margin-bottom: 0.5rem;">Plan Full</div>
         <div style="font-size: 1.125rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">1 € / miesiąc</div>

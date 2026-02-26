@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
@@ -19,6 +20,41 @@ class PracownicyTableService
         }
         $prefix = $this->sanitizeTyp($typ);
         return $prefix === '' ? 'pracownicy' : $prefix . '_pracownicy';
+    }
+
+    /**
+     * Zwraca rzeczywistą liczbę pracowników (bez grup) w całej podległej strukturze dla podanych ID korzeni.
+     * Używa rekurencyjnego CTE — liczy całe drzewo, nie tylko załadowany poziom.
+     */
+    public function countPracownikowWStrukturze(array $rootIds): int
+    {
+        if ($rootIds === []) {
+            return 0;
+        }
+        $table = $this->getTableName();
+        $placeholders = implode(',', array_fill(0, count($rootIds), '?'));
+        $driver = Schema::getConnection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $sql = "WITH RECURSIVE subtree(id) AS (
+                SELECT id FROM {$table} WHERE id IN ({$placeholders})
+                UNION ALL
+                SELECT p.id FROM {$table} p
+                INNER JOIN subtree s ON p.id_szefa = s.id OR p.szef_matrix = s.id
+            )
+            SELECT COUNT(*) as c FROM {$table} p
+            WHERE p.id IN (SELECT id FROM subtree) AND (COALESCE(p.grupa, 0) = 0)";
+        } else {
+            $sql = "WITH RECURSIVE subtree(id) AS (
+                SELECT id FROM {$table} WHERE id IN ({$placeholders})
+                UNION ALL
+                SELECT p.id FROM {$table} p
+                INNER JOIN subtree s ON p.id_szefa = s.id OR p.szef_matrix = s.id
+            )
+            SELECT COUNT(*) as c FROM {$table} p
+            WHERE p.id IN (SELECT id FROM subtree) AND (COALESCE(p.grupa, 0) = 0)";
+        }
+        $result = DB::select($sql, $rootIds);
+        return (int) ($result[0]->c ?? 0);
     }
 
     /**
@@ -53,6 +89,7 @@ class PracownicyTableService
             $table->string('imie');
             $table->string('nazwisko');
             $table->string('stanowisko');
+            $table->boolean('grupa')->default(false);
             $table->foreignId('id_szefa')->nullable()->constrained($tableName)->nullOnDelete();
             $table->foreignId('szef_matrix')->nullable()->constrained($tableName)->nullOnDelete();
             $table->timestamps();

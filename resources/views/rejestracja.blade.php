@@ -10,13 +10,6 @@
     <h1 style="font-size: 1.75rem; font-weight: 600; color: #111; margin-bottom: 0.5rem;">Rejestracja</h1>
     <p style="font-size: 0.9375rem; color: #64748b; margin-bottom: 1.5rem;">Plan: <strong>{{ $plan === 'full' ? 'Full' : 'Free' }}</strong></p>
 
-    @if (session('success'))
-        <p style="padding: 0.5rem 0.75rem; background: #d1fae8; color: #065f46; border-radius: 0.375rem; margin-bottom: 1rem; font-size: 0.875rem;">{{ session('success') }}</p>
-    @endif
-    @if (session('error'))
-        <p style="padding: 0.5rem 0.75rem; background: #fee2e2; color: #991b1b; border-radius: 0.375rem; margin-bottom: 1rem; font-size: 0.875rem;">{{ session('error') }}</p>
-    @endif
-
     <form action="{{ route('rejestracja.store') }}" method="POST" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem;">
         @csrf
         <input type="hidden" name="plan" value="{{ $plan }}">

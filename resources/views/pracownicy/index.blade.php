@@ -15,13 +15,6 @@
         @endif
     </div>
 
-    @if (session('success'))
-        <p style="padding: 0.75rem 1rem; background: #d1fae8; color: #065f46; border-radius: 0.375rem; margin-bottom: 1rem;">{{ session('success') }}</p>
-    @endif
-    @if (session('error'))
-        <p style="padding: 0.75rem 1rem; background: #fee2e2; color: #991b1b; border-radius: 0.375rem; margin-bottom: 1rem;">{{ session('error') }}</p>
-    @endif
-
     <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-radius: 0.5rem;">
             <thead>
@@ -30,6 +23,7 @@
                     <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">Imię</th>
                     <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">Nazwisko</th>
                     <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">Stanowisko</th>
+                    <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">Grupa</th>
                     <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">Szef</th>
                     <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">Szef matrix</th>
                     <th style="text-align: right; padding: 0.75rem 1rem; font-weight: 600;">Akcje</th>
@@ -42,6 +36,7 @@
                         <td style="padding: 0.75rem 1rem;">{{ $p->imie }}</td>
                         <td style="padding: 0.75rem 1rem;">{{ $p->nazwisko }}</td>
                         <td style="padding: 0.75rem 1rem;">{{ $p->stanowisko }}</td>
+                        <td style="padding: 0.75rem 1rem;">{{ $p->grupa ? 'Tak' : 'Nie' }}</td>
                         <td style="padding: 0.75rem 1rem;">{{ $p->szef ? $p->szef->imie_nazwisko : '—' }}</td>
                         <td style="padding: 0.75rem 1rem;">{{ $p->szefMatrix ? $p->szefMatrix->imie_nazwisko : '—' }}</td>
                         <td style="padding: 0.75rem 1rem; text-align: right; white-space: nowrap;">
@@ -62,7 +57,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="padding: 2rem; text-align: center; color: #6b7280;">Brak pracowników. @if($canAddPracownik)<a href="{{ route('kartoteki.pracownicy.create') }}" style="color: #2563eb;">Dodaj pierwszego</a>.@else Dodaj pracowników po przejściu na plan Full.@endif</td>
+                        <td colspan="8" style="padding: 2rem; text-align: center; color: #6b7280;">Brak pracowników. @if($canAddPracownik)<a href="{{ route('kartoteki.pracownicy.create') }}" style="color: #2563eb;">Dodaj pierwszego</a>.@else Dodaj pracowników po przejściu na plan Full.@endif</td>
                     </tr>
                 @endforelse
             </tbody>

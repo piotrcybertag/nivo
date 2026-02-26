@@ -5,6 +5,11 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// W dev daj więcej czasu na pierwsze żądanie (bootstrap + wolny cache/session)
+if (getenv('APP_ENV') === 'local' || getenv('APP_ENV') === '') {
+    set_time_limit(90);
+}
+
 // Determine if the application is in maintenance mode...
 if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;

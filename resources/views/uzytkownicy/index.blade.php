@@ -8,10 +8,6 @@
         <a href="{{ route('kartoteki.uzytkownicy.create') }}" style="display: inline-block; padding: 0.5rem 1rem; background: #1e40af; color: #fff; text-decoration: none; border-radius: 0.375rem; font-weight: 500;">Dodaj użytkownika</a>
     </div>
 
-    @if (session('success'))
-        <p style="padding: 0.75rem 1rem; background: #d1fae8; color: #065f46; border-radius: 0.375rem; margin-bottom: 1rem;">{{ session('success') }}</p>
-    @endif
-
     <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-radius: 0.5rem;">
             <thead>

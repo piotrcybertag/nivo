@@ -6,11 +6,11 @@
             : (($pracownik->relationLoaded('podwladni') ? $pracownik->podwladni->count() : ($pracownik->podwladni_count ?? 0))
                 + ($pracownik->relationLoaded('podwladniMatrix') ? $pracownik->podwladniMatrix->count() : ($pracownik->podwladni_matrix_count ?? 0)));
     @endphp
-    <a href="{{ $urlSchemat }}" class="schemat-box org-box org-box--clickable {{ isset($czyMatrix) && $czyMatrix ? 'org-box--matrix' : '' }}">
-        <div class="schemat-name">{{ $pracownik->imie }} {{ $pracownik->nazwisko }}{{ isset($czyMatrix) && $czyMatrix ? ' (M)' : '' }}</div>
+    <a href="{{ $urlSchemat }}" class="schemat-box org-box org-box--clickable {{ isset($czyMatrix) && $czyMatrix ? 'org-box--matrix' : '' }} {{ $pracownik->grupa ? 'org-box--grupa' : '' }}">
+        <div class="schemat-name">{{ $pracownik->imie }} {{ $pracownik->nazwisko }}{{ isset($czyMatrix) && $czyMatrix ? ' (M)' : '' }}{{ $pracownik->grupa ? ' · Grupa' : '' }}</div>
         <div class="schemat-stanowisko">{{ $pracownik->stanowisko }}</div>
         @if($liczbaPodwladnych > 0)
-            <div class="schemat-podwladni-count">1+({{ $liczbaPodwladnych }})</div>
+            <div class="schemat-podwladni-count">{{ $pracownik->grupa ? '0' : '1' }}+({{ $liczbaPodwladnych }})</div>
         @endif
     </a>
     @php

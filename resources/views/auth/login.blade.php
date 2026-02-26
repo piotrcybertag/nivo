@@ -6,10 +6,6 @@
     <div style="max-width: 360px; margin: 2rem auto; padding: 1.5rem; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
         <h1 style="margin: 0 0 1.25rem; font-size: 1.25rem;">Logowanie</h1>
 
-        @if (session('success'))
-            <p style="padding: 0.5rem 0.75rem; background: #d1fae8; color: #065f46; border-radius: 0.375rem; margin-bottom: 1rem; font-size: 0.875rem;">{{ session('success') }}</p>
-        @endif
-
         @if ($errors->any())
             <p style="padding: 0.5rem 0.75rem; background: #fee2e2; color: #991b1b; border-radius: 0.375rem; margin-bottom: 1rem; font-size: 0.875rem;">
                 {{ $errors->first() }}

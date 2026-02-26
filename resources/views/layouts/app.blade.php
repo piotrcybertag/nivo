@@ -43,6 +43,7 @@
         .schemat-box.org-box--clickable { display: flex; text-decoration: none; color: inherit; cursor: pointer; transition: background 0.15s, box-shadow 0.15s; }
         .schemat-box.org-box--clickable:hover { background: #eff6ff; box-shadow: 0 4px 12px rgba(30,64,175,0.2); }
         .schemat-box > div { min-width: 0; overflow-wrap: break-word; word-break: break-word; }
+        .schemat-pracownicy-total { font-size: 0.7rem; color: #6b7280; margin-bottom: 0.35rem; font-weight: 500; }
         .schemat-name { font-weight: 600; font-size: 0.95rem; line-height: 1.25; color: #111; margin-bottom: 0.25rem; }
         .schemat-stanowisko { font-size: 0.8rem; line-height: 1.3; color: #4b5563; }
         .schemat-podwladni-count { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
@@ -50,6 +51,7 @@
         /* Schemat – drzewo z liniami */
         .org-node { display: flex; flex-direction: column; align-items: center; width: max-content; }
         .org-box--matrix { border-style: dashed; border-color: #6b7280; }
+        .org-box--grupa { background: #f0fdf4; border-color: #86efac; }
         .org-connector-wrap { position: relative; display: flex; flex-direction: column; align-items: center; margin-top: 24px; align-self: stretch; }
         .org-connector-wrap > .org-lines-svg { position: absolute; pointer-events: none; overflow: visible; }
         .org-lines-svg path { fill: none; stroke: #374151; stroke-width: 2; }

@@ -18,9 +18,24 @@ class Pracownik extends Model
         'imie',
         'nazwisko',
         'stanowisko',
+        'grupa',
         'id_szefa',
         'szef_matrix',
     ];
+
+    protected $casts = [
+        'grupa' => 'boolean',
+    ];
+
+    /**
+     * Scope: tylko pozycje liczone jako pracownicy (nie grupy) — do limitu planu.
+     */
+    public function scopeLiczeniJakoPracownicy($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('grupa', false)->orWhereNull('grupa');
+        });
+    }
 
     public function szef(): BelongsTo
     {
