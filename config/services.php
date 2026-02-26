@@ -36,7 +36,7 @@ return [
     ],
 
     'stripe' => [
-        'payment_link' => env('STRIPE_PAYMENT_LINK', 'https://buy.stripe.com/test_cNieVdcDl1Q14Qx7fuafS00'),
+        'payment_link' => env('STRIPE_PAYMENT_LINK', 'https://buy.stripe.com/bJe14n1YHamx82JczOafS01'),
     ],
 
 ];

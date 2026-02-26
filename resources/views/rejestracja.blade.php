@@ -10,6 +10,13 @@
     <h1 style="font-size: 1.75rem; font-weight: 600; color: #111; margin-bottom: 0.5rem;">Rejestracja</h1>
     <p style="font-size: 0.9375rem; color: #64748b; margin-bottom: 1.5rem;">Plan: <strong>{{ $plan === 'full' ? 'Full' : 'Free' }}</strong></p>
 
+    @if($plan === 'full')
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 0.5rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+            <p style="margin: 0 0 0.5rem; font-size: 0.9375rem; color: #92400e; font-weight: 600;">Plan Full — najpierw załóż konto w planie Free</p>
+            <p style="margin: 0 0 1rem; font-size: 0.875rem; color: #78350f; line-height: 1.5;">Zarejestruj się do wersji FREE. Po zalogowaniu wejdź w <strong>Ustawienia</strong> → <strong>Przejdź na plan Full</strong> (upgrade) i dokonaj tam płatności.</p>
+            <a href="{{ route('rejestracja', ['plan' => 'free']) }}" style="display: inline-block; padding: 0.6rem 1.25rem; background: #1e40af; color: #fff; text-decoration: none; border-radius: 0.5rem; font-weight: 600; font-size: 0.9375rem;">Zarejestruj się do planu FREE</a>
+        </div>
+    @else
     <form action="{{ route('rejestracja.store') }}" method="POST" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem;">
         @csrf
         <input type="hidden" name="plan" value="{{ $plan }}">
@@ -53,5 +60,6 @@
         </div>
         <button type="submit" style="padding: 0.6rem 1.25rem; background: #1e40af; color: #fff; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer;">Załóż konto</button>
     </form>
+    @endif
 </div>
 @endsection
