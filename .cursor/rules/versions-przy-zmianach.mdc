@@ -1,0 +1,23 @@
+---
+description: Wersja tylko przy zmianie kodu. Przy "commit": commit + push + tag (bez zmiany wersji).
+alwaysApply: true
+---
+
+# Wersja i commit — obowiązkowe w tym projekcie
+
+## 1. Wersja TYLKO przy zmianie kodu
+
+- **Zwiększ numer wersji** w `versions.txt` **wyłącznie wtedy, gdy zmieniasz kod** (edycja plików w projekcie). Jedna liczba w pliku — zwiększ o 1.
+- Przy commicie dołącz `versions.txt` do stage (wersja jest już wcześniej zwiększona przy zmianach).
+
+**Nie zwiększaj wersji przy commicie.** Wersja rośnie tylko gdy coś edytujesz.
+
+## 2. Gdy użytkownik mówi „commit”
+
+Zrób w tej kolejności (bez zmiany wersji):
+
+1. **Commit**: `git add` (w tym `versions.txt`) + `git commit -m "..."`.
+2. **Push na GitHub**: `git push`.
+3. **Tag z aktualnego nr wersji** z `versions.txt` (np. wersja 7 → `git tag v7`, potem `git push origin v7`).
+
+Nie pomijaj pusha ani taga.
