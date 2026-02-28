@@ -48,7 +48,9 @@ class LoginController extends Controller
             app(PracownicyTableService::class)->ensureTableForCurrentUser();
         }
 
-        return redirect()->intended(route('home'))->with('success', 'Zalogowano.');
+        return redirect()->intended(route('home'))
+            ->with('success', 'Zalogowano.')
+            ->with('analytics_event', ['name' => 'login', 'params' => []]);
     }
 
     public function logout(Request $request)

@@ -40,7 +40,9 @@ Route::post('/upgrade', function () {
     }
     $u->update(['plan' => 'FULL']);
     session(['uzytkownik_plan' => 'FULL']);
-    return redirect()->route('home')->with('success', 'Twój plan został zmieniony na Full. Możesz teraz dodawać nieograniczoną liczbę pracowników.');
+    return redirect()->route('home')
+        ->with('success', 'Twój plan został zmieniony na Full. Możesz teraz dodawać nieograniczoną liczbę pracowników.')
+        ->with('analytics_event', ['name' => 'upgrade_plan', 'params' => []]);
 })->name('upgrade.store');
 
 Route::get('/rejestracja', function () {
@@ -72,7 +74,9 @@ Route::post('/rejestracja', function (\Illuminate\Http\Request $request) {
     $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
     unset($validated['organizacja']);
     \App\Models\Uzytkownik::create($validated);
-    return redirect()->route('login')->with('success', 'Konto zostało utworzone. Zaloguj się.');
+    return redirect()->route('login')
+        ->with('success', 'Konto zostało utworzone. Zaloguj się.')
+        ->with('analytics_event', ['name' => 'sign_up', 'params' => []]);
 })->name('rejestracja.store');
 
 Route::get('/schemat', function () {

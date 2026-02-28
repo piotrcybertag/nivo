@@ -39,4 +39,15 @@ return [
         'payment_link' => env('STRIPE_PAYMENT_LINK', 'https://buy.stripe.com/bJe14n1YHamx82JczOafS01'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Google Analytics 4
+    |--------------------------------------------------------------------------
+    | Reusable across cyberrum apps (nivo, empo, opeo). Only used in production
+    | when GA_MEASUREMENT_ID is set. Set in .env per environment.
+    */
+    'google_analytics' => [
+        'measurement_id' => env('GA_MEASUREMENT_ID'),
+    ],
+
 ];

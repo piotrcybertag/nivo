@@ -49,7 +49,17 @@ class PracownikController extends Controller
         $validated['grupa'] = $request->boolean('grupa');
 
         Pracownik::create($validated);
-        return redirect()->route('kartoteki.pracownicy.index')->with('success', 'Pracownik został dodany.');
+        $count = Pracownik::count();
+        $redirect = redirect()->route('kartoteki.pracownicy.index')->with('success', 'Pracownik został dodany.');
+        if ($count === 1) {
+            $redirect->with('analytics_events', [
+                ['name' => 'create_structure', 'params' => []],
+                ['name' => 'add_employee', 'params' => []],
+            ]);
+        } else {
+            $redirect->with('analytics_event', ['name' => 'add_employee', 'params' => []]);
+        }
+        return $redirect;
     }
 
     public function show(Pracownik $pracownik): View

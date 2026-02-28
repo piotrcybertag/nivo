@@ -71,6 +71,7 @@
         .przeglad-zoom-btn:hover { background: #1e40af; color: #fff; }
         .przeglad-zoom-out { font-size: 1.75rem; }
     </style>
+    @include('partials.analytics')
 </head>
 <body>
     <nav class="navbar">
@@ -339,5 +340,20 @@
         });
     })();
     </script>
+    {{-- GA4: load event helper; to add more events, flash 'analytics_event' or 'analytics_events' in controllers (see LoginController, PracownikController, routes web). Reuse in other cyberrum apps by including partials/analytics and this script. --}}
+    <script src="{{ asset('js/analytics.js') }}"></script>
+    @php
+        $analyticsEvents = session('analytics_events') ?: (session('analytics_event') ? [session('analytics_event')] : []);
+    @endphp
+    @if(count($analyticsEvents) > 0)
+    <script>
+    (function(){
+        var events = @json($analyticsEvents);
+        if (typeof window.trackEvent === 'function' && events.length) {
+            events.forEach(function(e) { window.trackEvent(e.name || e, e.params || {}); });
+        }
+    })();
+    </script>
+    @endif
 </body>
 </html>
