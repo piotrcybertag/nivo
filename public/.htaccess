@@ -5,6 +5,10 @@
 
     RewriteEngine On
 
+    # Zawsze przez Laravel — na hostingu mógł zostać stary public/robots.txt (deploy FTP nie usuwa plików);
+    # wtedy Apache podawał statyczny plik bez wpisu Sitemap.
+    RewriteRule ^robots\.txt$ index.php [L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

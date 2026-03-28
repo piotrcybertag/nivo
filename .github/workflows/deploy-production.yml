@@ -17,6 +17,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
+
+      # actions/checkout bywa bez tagów mimo pełnej historii — bez tego rev-parse v15
+      # kończy się fałszywym „brak tagu” i cichym pełnym deployem (git ls-files).
+      - name: Fetch tags from origin
+        run: git fetch origin --prune --tags --force
 
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
@@ -46,21 +52,26 @@ jobs:
             git ls-files > changed_files.txt
           else
             echo "Finding files changed since version $SERVER_VERSION"
-            # W tym projekcie tag to sama liczba (5, 6), bez prefiksu v
-            SERVER_TAG="$SERVER_VERSION"
+            # Tag może być "11" lub "v11" — sprawdzamy obie formy
+            SERVER_TAG=""
+            if git rev-parse "v$SERVER_VERSION" >/dev/null 2>&1; then
+              SERVER_TAG="v$SERVER_VERSION"
+            elif git rev-parse "$SERVER_VERSION" >/dev/null 2>&1; then
+              SERVER_TAG="$SERVER_VERSION"
+            fi
 
-            if git rev-parse "$SERVER_TAG" >/dev/null 2>&1; then
+            if [ -n "$SERVER_TAG" ]; then
               echo "Comparing with tag: $SERVER_TAG"
               git diff --name-only "$SERVER_TAG" HEAD > changed_files.txt
             else
-              echo "Tag $SERVER_TAG not found, comparing with commit containing Wersja $SERVER_VERSION"
+              echo "Tag v$SERVER_VERSION ani $SERVER_VERSION nie znaleziony po fetch --tags, szukam commita „Wersja $SERVER_VERSION” (stary format)"
               COMMIT=$(git log --all --grep="Wersja $SERVER_VERSION" --format="%H" | head -1)
               if [ -n "$COMMIT" ]; then
                 echo "Found commit: $COMMIT"
                 git diff --name-only "$COMMIT" HEAD > changed_files.txt
               else
-                echo "Could not find commit with version $SERVER_VERSION, deploying all files"
-                git ls-files > changed_files.txt
+                echo "::error::Brak tagu v$SERVER_VERSION (i $SERVER_VERSION) oraz commita z tytułem „Wersja $SERVER_VERSION”. Na runnerze nie da się ustalić bazy do diff — pełny deploy tylko przy server_version=0."
+                exit 1
               fi
             fi
           fi
