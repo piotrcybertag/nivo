@@ -7,6 +7,45 @@ use App\Models\Pracownik;
 use App\Services\PracownicyTableService;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/robots.txt', function () {
+    $base = rtrim((string) config('app.url'), '/');
+    $body = implode("\n", [
+        'User-agent: *',
+        'Allow: /',
+        '',
+        'Sitemap: ' . $base . '/sitemap.xml',
+    ]);
+
+    return response($body, 200)->header('Content-Type', 'text/plain; charset=UTF-8');
+});
+
+Route::get('/sitemap.xml', function () {
+    $base = rtrim((string) config('app.url'), '/');
+    $urls = [
+        ['loc' => $base . '/', 'changefreq' => 'weekly', 'priority' => '1.0'],
+        ['loc' => $base . '/cennik', 'changefreq' => 'monthly', 'priority' => '0.9'],
+        ['loc' => $base . '/login', 'changefreq' => 'monthly', 'priority' => '0.7'],
+        ['loc' => $base . '/rejestracja', 'changefreq' => 'monthly', 'priority' => '0.8'],
+    ];
+    $lastmod = now()->toAtomString();
+    $lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ];
+    foreach ($urls as $u) {
+        $lines[] = '  <url>';
+        $lines[] = '    <loc>' . htmlspecialchars($u['loc'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</loc>';
+        $lines[] = '    <lastmod>' . htmlspecialchars($lastmod, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</lastmod>';
+        $lines[] = '    <changefreq>' . htmlspecialchars($u['changefreq'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</changefreq>';
+        $lines[] = '    <priority>' . htmlspecialchars($u['priority'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</priority>';
+        $lines[] = '  </url>';
+    }
+    $lines[] = '</urlset>';
+    $xml = implode("\n", $lines) . "\n";
+
+    return response($xml, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+});
+
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
