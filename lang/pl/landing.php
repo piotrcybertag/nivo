@@ -20,6 +20,12 @@ return [
         'login' => 'Zaloguj się',
         'register' => 'Rejestracja',
         'back_app' => 'Wróć do Nivo',
+        'lang_menu' => 'Język strony',
+        'lang_current_pl' => 'Polski',
+        'lang_current_en' => 'English',
+        'lang_switch_pl' => 'Polski',
+        'lang_switch_en' => 'English',
+        'lang_switch_hint' => 'Wersja językowa i zapamiętanie wyboru',
     ],
     'mega' => [
         'intro' => 'Zobacz, jak Nivo porządkuje strukturę ludzi w organizacji',

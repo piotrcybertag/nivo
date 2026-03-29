@@ -20,6 +20,12 @@ return [
         'login' => 'Log in',
         'register' => 'Sign up',
         'back_app' => 'Back to Nivo',
+        'lang_menu' => 'Site language',
+        'lang_current_pl' => 'Polski',
+        'lang_current_en' => 'English',
+        'lang_switch_pl' => 'Polski',
+        'lang_switch_en' => 'English',
+        'lang_switch_hint' => 'Language version and remember your choice',
     ],
     'mega' => [
         'intro' => 'See how Nivo keeps your people structure clear',

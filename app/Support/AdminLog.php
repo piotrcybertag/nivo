@@ -8,18 +8,38 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Audit trail (landing, rejestracja, logowanie). Geolokalizacja IP przez darmowe API ip-api.com (HTTP).
+ * Audit trail (nawigacja landing, rejestracja, logowanie). Geolokalizacja IP przez HTTP ip-api.com.
  */
 final class AdminLog
 {
-    public static function landingVisit(Request $request): void
+    public static function landingNavigation(Request $request): void
     {
-        self::logVisit($request, 'landing_visit');
+        $route = $request->route()?->getName() ?? '-';
+        $route = preg_replace('/[^\w.\-]/', '', (string) $route) ?: '-';
+        $path = str_replace(["\n", "\r"], '', '/'.$request->path());
+        $path = $path === '//' ? '/' : $path;
+        $ip = $request->ip() ?? 'unknown';
+        Log::channel('admin')->info(sprintf(
+            'landing_nav route=%s path=%s ip=%s %s',
+            $route,
+            $path,
+            $ip,
+            self::geoSuffix($ip)
+        ));
     }
 
     public static function registrationPageOpen(Request $request): void
     {
-        self::logVisit($request, 'registration_page_open');
+        $route = $request->route()?->getName() ?? 'rejestracja';
+        $path = str_replace(["\n", "\r"], '', '/'.$request->path());
+        $ip = $request->ip() ?? 'unknown';
+        Log::channel('admin')->info(sprintf(
+            'registration_page_open route=%s path=%s ip=%s %s',
+            $route,
+            $path,
+            $ip,
+            self::geoSuffix($ip)
+        ));
     }
 
     public static function userRegistered(string $imieNazwisko, string $plan): void
@@ -36,17 +56,6 @@ final class AdminLog
         Log::channel('admin')->info(sprintf(
             'login user=%s',
             self::quotify($imieNazwisko)
-        ));
-    }
-
-    private static function logVisit(Request $request, string $event): void
-    {
-        $ip = $request->ip() ?? 'unknown';
-        Log::channel('admin')->info(sprintf(
-            '%s ip=%s %s',
-            $event,
-            $ip,
-            self::geoSuffix($ip)
         ));
     }
 

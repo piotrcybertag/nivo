@@ -4,6 +4,7 @@ use App\Http\Controllers\CookieConsentController;
 use App\Http\Controllers\FullPlanPaymentController;
 use App\Http\Controllers\LandingContactController;
 use App\Http\Controllers\LandingFunkcjaController;
+use App\Http\Controllers\LandingLocaleController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PracownikController;
 use App\Http\Controllers\UzytkownikController;
@@ -11,6 +12,7 @@ use App\Models\Pracownik;
 use App\Models\Uzytkownik;
 use App\Services\PracownicyTableService;
 use App\Support\AdminLog;
+use App\Support\LandingLocalePreference;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -84,15 +86,33 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+Route::get('/landing/set-locale/{locale}', LandingLocaleController::class)
+    ->middleware('admin.audit:nav')
+    ->where('locale', 'pl|en')
+    ->name('landing.set_locale');
+
 Route::middleware('landing.locale:pl')->group(function (): void {
-    Route::get('/', function () {
-        return view('landing.index');
-    })->middleware('admin.audit:landing')->name('home');
+    Route::get('/', function (Request $request) {
+        $pref = LandingLocalePreference::cookieValue($request);
+        if ($pref === 'en') {
+            return redirect()->route('en.landing', [], 302);
+        }
+        if ($pref === 'pl' || ($pref === null && LandingLocalePreference::acceptLanguageWantsPolish($request))) {
+            return view('landing.index');
+        }
+
+        return redirect()->route('en.landing', [], 302);
+    })->middleware('admin.audit:nav')->name('home');
     Route::get('/funkcje/{slug}', [LandingFunkcjaController::class, 'showPl'])
         ->where('slug', 'kartoteka|schemat|przeglad')
+        ->middleware('admin.audit:nav')
         ->name('landing.funkcja');
-    Route::get('/polityka-prywatnosci', fn () => view('landing.polityka-prywatnosci'))->name('polityka-prywatnosci');
-    Route::get('/regulamin', fn () => view('landing.regulamin'))->name('regulamin');
+    Route::get('/polityka-prywatnosci', fn () => view('landing.polityka-prywatnosci'))
+        ->middleware('admin.audit:nav')
+        ->name('polityka-prywatnosci');
+    Route::get('/regulamin', fn () => view('landing.regulamin'))
+        ->middleware('admin.audit:nav')
+        ->name('regulamin');
     Route::post('/zgoda-na-cookies', [CookieConsentController::class, 'store'])->name('cookie.consent');
 });
 
@@ -101,12 +121,19 @@ Route::post('/landing/kontakt', [LandingContactController::class, 'store'])
     ->name('landing.kontakt');
 
 Route::prefix('en')->middleware('landing.locale:en')->group(function (): void {
-    Route::get('/landing', fn () => view('landing.index'))->middleware('admin.audit:landing')->name('en.landing');
+    Route::get('/landing', fn () => view('landing.index'))
+        ->middleware('admin.audit:nav')
+        ->name('en.landing');
     Route::get('/features/{slug}', [LandingFunkcjaController::class, 'showEn'])
         ->where('slug', 'directory|org-chart|overview')
+        ->middleware('admin.audit:nav')
         ->name('en.landing.funkcja');
-    Route::get('/privacy-policy', fn () => view('landing.privacy-en'))->name('en.privacy');
-    Route::get('/terms-of-service', fn () => view('landing.terms-en'))->name('en.terms');
+    Route::get('/privacy-policy', fn () => view('landing.privacy-en'))
+        ->middleware('admin.audit:nav')
+        ->name('en.privacy');
+    Route::get('/terms-of-service', fn () => view('landing.terms-en'))
+        ->middleware('admin.audit:nav')
+        ->name('en.terms');
     Route::post('/landing/contact', [LandingContactController::class, 'store'])
         ->middleware('throttle:8,1')
         ->name('en.landing.contact');

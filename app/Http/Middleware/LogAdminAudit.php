@@ -18,7 +18,7 @@ class LogAdminAudit
         }
 
         match ($action) {
-            'landing' => AdminLog::landingVisit($request),
+            'nav' => AdminLog::landingNavigation($request),
             'registration_open' => AdminLog::registrationPageOpen($request),
             default => null,
         };

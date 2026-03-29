@@ -73,6 +73,8 @@
         .nav-item-mega .nav-link { border-bottom: 2px solid transparent; }
         .nav-item-mega:hover .nav-link,
         .nav-item-mega .nav-link.active { color: #6d28d9; border-bottom-color: #6d28d9; }
+        .lang-switcher > summary::-webkit-details-marker { display: none; }
+        .lang-switcher[open] .lang-switcher-chev { transform: rotate(180deg); }
     </style>
     @include('partials.analytics')
 </head>
@@ -173,6 +175,9 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                    <div class="hidden md:block">
+                        @include('landing.partials.lang-switcher', ['compact' => false])
+                    </div>
                     @if(session('uzytkownik_id'))
                         <a href="{{ route('schemat') }}" class="inline-flex items-center px-4 sm:px-5 py-2.5 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition shadow-sm shadow-violet-600/20">{{ __('landing.nav.back_app') }}</a>
                     @else
@@ -182,9 +187,10 @@
                 </div>
             </div>
         </nav>
-        <div class="md:hidden border-t border-gray-100 bg-white px-4 py-2 flex items-center justify-center gap-6 text-sm font-semibold text-gray-800">
+        <div class="md:hidden border-t border-gray-100 bg-white px-4 py-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-semibold text-gray-800">
             <a href="{{ LandingAlternateUrls::featureAnchorUrl('funkcje') }}" class="hover:text-violet-700">{{ __('landing.nav.features') }}</a>
             <a href="{{ route('cennik') }}" class="hover:text-violet-700">{{ __('landing.nav.pricing') }}</a>
+            @include('landing.partials.lang-switcher', ['compact' => true])
         </div>
     </header>
 
@@ -284,9 +290,9 @@
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-6">
                             <div class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 border border-white/30 rounded text-sm text-white/90" role="navigation" aria-label="Language">
-                                <a href="{{ $landingAlternateUrls['pl'] ?? route('home') }}" lang="pl" class="px-2 py-0.5 rounded {{ ($landingLocale ?? 'pl') === 'pl' ? 'bg-white/20 text-white font-semibold' : 'text-white/75 hover:text-white' }}">{{ __('landing.footer.lang_pl') }}</a>
+                                <a href="{{ route('landing.set_locale', ['locale' => 'pl', 'next' => $landingLocaleSwitch['pl_path']]) }}" lang="pl" class="px-2 py-0.5 rounded {{ ($landingLocale ?? 'pl') === 'pl' ? 'bg-white/20 text-white font-semibold' : 'text-white/75 hover:text-white' }}">{{ __('landing.footer.lang_pl') }}</a>
                                 <span class="text-white/40" aria-hidden="true">|</span>
-                                <a href="{{ $landingAlternateUrls['en'] ?? route('en.landing') }}" lang="en" class="px-2 py-0.5 rounded {{ ($landingLocale ?? 'pl') === 'en' ? 'bg-white/20 text-white font-semibold' : 'text-white/75 hover:text-white' }}">{{ __('landing.footer.lang_en') }}</a>
+                                <a href="{{ route('landing.set_locale', ['locale' => 'en', 'next' => $landingLocaleSwitch['en_path']]) }}" lang="en" class="px-2 py-0.5 rounded {{ ($landingLocale ?? 'pl') === 'en' ? 'bg-white/20 text-white font-semibold' : 'text-white/75 hover:text-white' }}">{{ __('landing.footer.lang_en') }}</a>
                             </div>
                             <a href="{{ LandingAlternateUrls::policyUrl() }}" class="text-sm text-white/80 hover:text-white">{{ __('landing.footer.privacy') }}</a>
                             <a href="{{ LandingAlternateUrls::termsUrl() }}" class="text-sm text-white/80 hover:text-white">{{ __('landing.footer.terms') }}</a>
