@@ -12,7 +12,7 @@
                 Aktualny plan: <strong>{{ $uzytkownik->plan ?? 'Free' }}</strong>
             </p>
             @if(($uzytkownik->plan ?? 'FREE') === 'FREE')
-                <p style="margin: 0 0 0.75rem; font-size: 0.875rem; color: #64748b;">Plan Free: do 10 pracowników. Plan Full: bez limitu, 1 €/mies. (12 € rocznie).</p>
+                <p style="margin: 0 0 0.75rem; font-size: 0.875rem; color: #64748b;">Plan Free: do 10 pracowników. Plan Full: bez limitu, 3 €/mies. (36 € rocznie).</p>
                 <a href="{{ route('upgrade') }}" style="display: inline-block; padding: 0.5rem 1rem; background: #1e40af; color: #fff; text-decoration: none; border-radius: 0.375rem; font-weight: 600; font-size: 0.875rem;">Przejdź na plan Full</a>
             @else
                 <p style="margin: 0; font-size: 0.875rem; color: #64748b;">Masz pełny dostęp bez limitu pracowników.</p>

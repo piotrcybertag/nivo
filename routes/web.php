@@ -1,11 +1,34 @@
 <?php
 
+use App\Http\Controllers\CookieConsentController;
+use App\Http\Controllers\FullPlanPaymentController;
+use App\Http\Controllers\LandingContactController;
+use App\Http\Controllers\LandingFunkcjaController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PracownikController;
 use App\Http\Controllers\UzytkownikController;
 use App\Models\Pracownik;
+use App\Models\Uzytkownik;
 use App\Services\PracownicyTableService;
+use App\Support\AdminLog;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
+
+Route::get('/favicon.ico', function () {
+    $path = public_path('nivo-favicon.ico');
+    if (! is_readable($path)) {
+        abort(404);
+    }
+
+    return response()->file($path, [
+        'Content-Type' => 'image/x-icon',
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma' => 'no-cache',
+        'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+    ]);
+});
 
 Route::get('/robots.txt', function () {
     $base = rtrim((string) config('app.url'), '/');
@@ -13,7 +36,7 @@ Route::get('/robots.txt', function () {
         'User-agent: *',
         'Allow: /',
         '',
-        'Sitemap: ' . $base . '/sitemap.xml',
+        'Sitemap: '.$base.'/sitemap.xml',
     ]);
 
     return response($body, 200)->header('Content-Type', 'text/plain; charset=UTF-8');
@@ -22,10 +45,21 @@ Route::get('/robots.txt', function () {
 Route::get('/sitemap.xml', function () {
     $base = rtrim((string) config('app.url'), '/');
     $urls = [
-        ['loc' => $base . '/', 'changefreq' => 'weekly', 'priority' => '1.0'],
-        ['loc' => $base . '/cennik', 'changefreq' => 'monthly', 'priority' => '0.9'],
-        ['loc' => $base . '/login', 'changefreq' => 'monthly', 'priority' => '0.7'],
-        ['loc' => $base . '/rejestracja', 'changefreq' => 'monthly', 'priority' => '0.8'],
+        ['loc' => $base.'/', 'changefreq' => 'weekly', 'priority' => '1.0'],
+        ['loc' => $base.'/en/landing', 'changefreq' => 'weekly', 'priority' => '0.9'],
+        ['loc' => $base.'/funkcje/kartoteka', 'changefreq' => 'monthly', 'priority' => '0.85'],
+        ['loc' => $base.'/funkcje/schemat', 'changefreq' => 'monthly', 'priority' => '0.85'],
+        ['loc' => $base.'/funkcje/przeglad', 'changefreq' => 'monthly', 'priority' => '0.85'],
+        ['loc' => $base.'/en/features/directory', 'changefreq' => 'monthly', 'priority' => '0.8'],
+        ['loc' => $base.'/en/features/org-chart', 'changefreq' => 'monthly', 'priority' => '0.8'],
+        ['loc' => $base.'/en/features/overview', 'changefreq' => 'monthly', 'priority' => '0.8'],
+        ['loc' => $base.'/polityka-prywatnosci', 'changefreq' => 'yearly', 'priority' => '0.5'],
+        ['loc' => $base.'/regulamin', 'changefreq' => 'yearly', 'priority' => '0.5'],
+        ['loc' => $base.'/en/privacy-policy', 'changefreq' => 'yearly', 'priority' => '0.5'],
+        ['loc' => $base.'/en/terms-of-service', 'changefreq' => 'yearly', 'priority' => '0.5'],
+        ['loc' => $base.'/cennik', 'changefreq' => 'monthly', 'priority' => '0.9'],
+        ['loc' => $base.'/login', 'changefreq' => 'monthly', 'priority' => '0.7'],
+        ['loc' => $base.'/rejestracja', 'changefreq' => 'monthly', 'priority' => '0.8'],
     ];
     $lastmod = now()->toAtomString();
     $lines = [
@@ -34,14 +68,14 @@ Route::get('/sitemap.xml', function () {
     ];
     foreach ($urls as $u) {
         $lines[] = '  <url>';
-        $lines[] = '    <loc>' . htmlspecialchars($u['loc'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</loc>';
-        $lines[] = '    <lastmod>' . htmlspecialchars($lastmod, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</lastmod>';
-        $lines[] = '    <changefreq>' . htmlspecialchars($u['changefreq'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</changefreq>';
-        $lines[] = '    <priority>' . htmlspecialchars($u['priority'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</priority>';
+        $lines[] = '    <loc>'.htmlspecialchars($u['loc'], ENT_XML1 | ENT_QUOTES, 'UTF-8').'</loc>';
+        $lines[] = '    <lastmod>'.htmlspecialchars($lastmod, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</lastmod>';
+        $lines[] = '    <changefreq>'.htmlspecialchars($u['changefreq'], ENT_XML1 | ENT_QUOTES, 'UTF-8').'</changefreq>';
+        $lines[] = '    <priority>'.htmlspecialchars($u['priority'], ENT_XML1 | ENT_QUOTES, 'UTF-8').'</priority>';
         $lines[] = '  </url>';
     }
     $lines[] = '</urlset>';
-    $xml = implode("\n", $lines) . "\n";
+    $xml = implode("\n", $lines)."\n";
 
     return response($xml, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
 });
@@ -50,35 +84,68 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+Route::middleware('landing.locale:pl')->group(function (): void {
+    Route::get('/', function () {
+        return view('landing.index');
+    })->middleware('admin.audit:landing')->name('home');
+    Route::get('/funkcje/{slug}', [LandingFunkcjaController::class, 'showPl'])
+        ->where('slug', 'kartoteka|schemat|przeglad')
+        ->name('landing.funkcja');
+    Route::get('/polityka-prywatnosci', fn () => view('landing.polityka-prywatnosci'))->name('polityka-prywatnosci');
+    Route::get('/regulamin', fn () => view('landing.regulamin'))->name('regulamin');
+    Route::post('/zgoda-na-cookies', [CookieConsentController::class, 'store'])->name('cookie.consent');
+});
+
+Route::post('/landing/kontakt', [LandingContactController::class, 'store'])
+    ->middleware('throttle:8,1')
+    ->name('landing.kontakt');
+
+Route::prefix('en')->middleware('landing.locale:en')->group(function (): void {
+    Route::get('/landing', fn () => view('landing.index'))->middleware('admin.audit:landing')->name('en.landing');
+    Route::get('/features/{slug}', [LandingFunkcjaController::class, 'showEn'])
+        ->where('slug', 'directory|org-chart|overview')
+        ->name('en.landing.funkcja');
+    Route::get('/privacy-policy', fn () => view('landing.privacy-en'))->name('en.privacy');
+    Route::get('/terms-of-service', fn () => view('landing.terms-en'))->name('en.terms');
+    Route::post('/landing/contact', [LandingContactController::class, 'store'])
+        ->middleware('throttle:8,1')
+        ->name('en.landing.contact');
+    Route::post('/cookie-consent', [CookieConsentController::class, 'store'])->name('en.cookie.consent');
+});
 
 Route::get('/cennik', function () {
     return view('cennik');
 })->name('cennik');
 
 Route::get('/upgrade', function () {
-    if (!session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_plan') !== 'FREE') {
+    if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_plan') !== 'FREE') {
         return redirect()->route('home')->with('error', 'Strona tylko dla użytkowników planu Free.');
     }
+
     return view('upgrade');
 })->name('upgrade');
+
+Route::get('/upgrade/platnosc-stripe', [FullPlanPaymentController::class, 'start'])
+    ->name('upgrade.stripe.start');
+
+Route::get('/platnosc/full/dziekujemy', [FullPlanPaymentController::class, 'thankYou'])
+    ->name('platnosc.full.dziekujemy');
 
 Route::get('/upgrade/sukces', function () {
     return view('upgrade-sukces');
 })->name('upgrade.sukces');
 
 Route::post('/upgrade', function () {
-    if (!session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_plan') !== 'FREE') {
+    if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_plan') !== 'FREE') {
         return redirect()->route('home')->with('error', 'Nieprawidłowe żądanie.');
     }
-    $u = \App\Models\Uzytkownik::find(session('uzytkownik_id'));
-    if (!$u || $u->plan !== 'FREE') {
+    $u = Uzytkownik::find(session('uzytkownik_id'));
+    if (! $u || $u->plan !== 'FREE') {
         return redirect()->route('home');
     }
     $u->update(['plan' => 'FULL']);
     session(['uzytkownik_plan' => 'FULL']);
+
     return redirect()->route('home')
         ->with('success', 'Twój plan został zmieniony na Full. Możesz teraz dodawać nieograniczoną liczbę pracowników.')
         ->with('analytics_event', ['name' => 'upgrade_plan', 'params' => []]);
@@ -86,15 +153,16 @@ Route::post('/upgrade', function () {
 
 Route::get('/rejestracja', function () {
     $plan = request('plan', 'free');
-    if (!in_array($plan, ['free', 'full'], true)) {
+    if (! in_array($plan, ['free', 'full'], true)) {
         $plan = 'free';
     }
-    return view('rejestracja', ['plan' => $plan]);
-})->name('rejestracja');
 
-Route::post('/rejestracja', function (\Illuminate\Http\Request $request) {
+    return view('rejestracja', ['plan' => $plan]);
+})->middleware('admin.audit:registration_open')->name('rejestracja');
+
+Route::post('/rejestracja', function (Request $request) {
     $plan = $request->input('plan', 'free');
-    if (!in_array($plan, ['free', 'full'], true)) {
+    if (! in_array($plan, ['free', 'full'], true)) {
         return redirect()->route('rejestracja')->with('error', 'Nieprawidłowy plan.');
     }
     $validated = $request->validate([
@@ -104,15 +172,17 @@ Route::post('/rejestracja', function (\Illuminate\Http\Request $request) {
         'password' => 'required|string|min:6|confirmed',
     ]);
     $organizacja = trim($validated['organizacja']);
-    if (\App\Models\Uzytkownik::whereRaw('LOWER(typ) = ?', [strtolower($organizacja)])->exists()) {
+    if (Uzytkownik::whereRaw('LOWER(typ) = ?', [strtolower($organizacja)])->exists()) {
         return redirect()->back()->withInput($request->only('email', 'imie_nazwisko', 'organizacja'))
             ->with('error', 'Organizacja o tej nazwie jest już zarejestrowana. Wybierz inną nazwę.');
     }
     $validated['typ'] = $organizacja;
     $validated['plan'] = strtoupper($plan);
-    $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+    $validated['password'] = Hash::make($validated['password']);
     unset($validated['organizacja']);
-    \App\Models\Uzytkownik::create($validated);
+    $u = Uzytkownik::create($validated);
+    AdminLog::userRegistered((string) $u->imie_nazwisko, (string) $u->plan);
+
     return redirect()->route('login')
         ->with('success', 'Konto zostało utworzone. Zaloguj się.')
         ->with('analytics_event', ['name' => 'sign_up', 'params' => []]);
@@ -130,7 +200,7 @@ Route::get('/schemat', function () {
         $root = Pracownik::withCount('podwladni')->withCount('podwladniMatrix')
             ->with(array_merge($withPodwladni, ['szef', 'szefMatrix']))
             ->find($pracownikId);
-        if (!$root) {
+        if (! $root) {
             return redirect()->route('schemat');
         }
         $korzenie = collect([$root]);
@@ -179,19 +249,22 @@ Route::get('/schemat', function () {
     $szukaj = request('szukaj', '');
     $wynikiWyszukiwania = collect();
     if (strlen($szukaj) >= 1) {
-        $wynikiWyszukiwania = Pracownik::where('nazwisko', 'like', '%' . $szukaj . '%')
-            ->orWhere('imie', 'like', '%' . $szukaj . '%')
+        $wynikiWyszukiwania = Pracownik::where('nazwisko', 'like', '%'.$szukaj.'%')
+            ->orWhere('imie', 'like', '%'.$szukaj.'%')
             ->orderBy('nazwisko')
             ->orderBy('imie')
             ->limit(50)
             ->get();
     }
+
     return view('schemat', compact('korzenie', 'nadSzefowie', 'szukaj', 'wynikiWyszukiwania', 'totalPracownikow'));
 })->name('schemat');
 
 Route::get('/przeglad', function () {
     $loadTree = function ($p, $depth = 25) use (&$loadTree) {
-        if ($depth <= 0) return;
+        if ($depth <= 0) {
+            return;
+        }
         $p->load([
             'podwladni' => fn ($q) => $q->orderBy('nazwisko')->orderBy('imie'),
             'podwladniMatrix' => fn ($q) => $q->orderBy('nazwisko')->orderBy('imie'),
@@ -207,38 +280,42 @@ Route::get('/przeglad', function () {
     foreach ($korzenie as $k) {
         $loadTree($k);
     }
+
     return view('przeglad', compact('korzenie'));
 })->name('przeglad');
 
 Route::get('/instrukcja', function () {
-    if (!session('uzytkownik_id') || session('login_via_link')) {
+    if (! session('uzytkownik_id') || session('login_via_link')) {
         return redirect()->route('home')->with('error', 'Instrukcja jest dostępna tylko po zalogowaniu hasłem.');
     }
+
     return view('instrukcja');
 })->name('instrukcja');
 
 Route::get('/ustawienia', function () {
-    if (!session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_typ') === 'ADM') {
+    if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_typ') === 'ADM') {
         return redirect()->route('home')->with('error', 'Strona niedostępna.');
     }
-    $uzytkownik = \App\Models\Uzytkownik::find(session('uzytkownik_id'));
+    $uzytkownik = Uzytkownik::find(session('uzytkownik_id'));
+
     return view('ustawienia', ['uzytkownik' => $uzytkownik]);
 })->name('ustawienia');
 
 Route::post('/ustawienia/generuj-link', function () {
-    if (!session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_typ') === 'ADM') {
+    if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_typ') === 'ADM') {
         return redirect()->route('home')->with('error', 'Strona niedostępna.');
     }
-    $uzytkownik = \App\Models\Uzytkownik::find(session('uzytkownik_id'));
-    if (!$uzytkownik) {
+    $uzytkownik = Uzytkownik::find(session('uzytkownik_id'));
+    if (! $uzytkownik) {
         return redirect()->route('ustawienia')->with('error', 'Nie znaleziono użytkownika.');
     }
-    $token = \Illuminate\Support\Str::random(15);
-    while (\App\Models\Uzytkownik::where('login_link_token', $token)->exists()) {
-        $token = \Illuminate\Support\Str::random(15);
+    $token = Str::random(15);
+    while (Uzytkownik::where('login_link_token', $token)->exists()) {
+        $token = Str::random(15);
     }
     $uzytkownik->update(['login_link_token' => $token]);
-    $link = url('/' . $token);
+    $link = url('/'.$token);
+
     return redirect()
         ->route('ustawienia')
         ->with('success', 'Link wygenerowany.')

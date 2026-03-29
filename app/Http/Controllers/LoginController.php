@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Uzytkownik;
 use App\Services\PracownicyTableService;
+use App\Support\AdminLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +19,7 @@ class LoginController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
         }
+
         return view('auth.login');
     }
 
@@ -30,7 +32,7 @@ class LoginController extends Controller
 
         $uzytkownik = Uzytkownik::where('email', $request->email)->first();
 
-        if (!$uzytkownik || !Hash::check($request->password, $uzytkownik->password)) {
+        if (! $uzytkownik || ! Hash::check($request->password, $uzytkownik->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Podane dane logowania są nieprawidłowe.'],
             ]);
@@ -47,6 +49,8 @@ class LoginController extends Controller
         if ($uzytkownik->typ !== 'ADM') {
             app(PracownicyTableService::class)->ensureTableForCurrentUser();
         }
+
+        AdminLog::userLogin((string) $uzytkownik->imie_nazwisko);
 
         return redirect()->intended(route('home'))
             ->with('success', 'Zalogowano.')
@@ -65,7 +69,7 @@ class LoginController extends Controller
     public function loginViaLink(string $token): RedirectResponse
     {
         $uzytkownik = Uzytkownik::where('login_link_token', $token)->first();
-        if (!$uzytkownik) {
+        if (! $uzytkownik) {
             return redirect()->route('login')->with('error', 'Link jest nieprawidłowy lub wygasł.');
         }
 
@@ -80,6 +84,8 @@ class LoginController extends Controller
         if ($uzytkownik->typ !== 'ADM') {
             app(PracownicyTableService::class)->ensureTableForCurrentUser();
         }
+
+        AdminLog::userLogin((string) $uzytkownik->imie_nazwisko);
 
         return redirect()->route('home')->with('success', 'Zalogowano przez link.');
     }

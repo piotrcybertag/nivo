@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Nivo">
+  <rect width="32" height="32" rx="8" fill="#faf5ff"/>
+  <path fill="#6d28d9" d="M6 23 13 11h3.5L9.5 23z"/>
+  <path fill="#0d9488" d="M11.5 23 19 11h3.5L15 23z"/>
+  <path fill="#5eead4" d="M17 23 24 11h3L20 23z"/>
+</svg>

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\View\Composers\LandingLayoutComposer;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::share('appVersion', app()->runningInConsole() ? '1' : $this->readVersion());
+        View::composer('landing.*', LandingLayoutComposer::class);
     }
 
     private function readVersion(): string
@@ -32,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
             }
         } catch (\Throwable $e) {
         }
+
         return '1';
     }
 }

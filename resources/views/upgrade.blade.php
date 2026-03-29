@@ -8,10 +8,10 @@
 
     <div style="background: #fff; border: 2px solid #1e40af; border-radius: 0.75rem; padding: 1.75rem; box-shadow: 0 4px 12px rgba(30,64,175,0.12);">
         <div style="font-size: 1.25rem; font-weight: 700; color: #1e40af; margin-bottom: 0.5rem;">Plan Full</div>
-        <div style="font-size: 1.125rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">1 € / miesiąc</div>
-        <p style="font-size: 0.875rem; color: #64748b; margin: 0 0 1rem; line-height: 1.5;">Płatne rocznie (12 €).</p>
-        <p style="font-size: 0.9375rem; color: #374151; margin: 0 0 1.5rem; line-height: 1.6;">Bez limitu pracowników. Pełna kartoteka, schemat i przegląd — bez ograniczenia do 10 osób.</p>
-        <a href="{{ config('services.stripe.payment_link') }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 0.65rem 1.5rem; background: #1e40af; color: #fff; text-decoration: none; border-radius: 0.5rem; font-weight: 600; font-size: 1rem;">Wybierz Full</a>
+        <div style="font-size: 1.125rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">3 € / miesiąc</div>
+        <p style="font-size: 0.875rem; color: #64748b; margin: 0 0 1rem; line-height: 1.5;">Płatne rocznie (36 €).</p>
+        <p style="font-size: 0.9375rem; color: #374151; margin: 0 0 1.5rem; line-height: 1.6;">Bez limitu pracowników. Pełna kartoteka, schemat i przegląd — bez ograniczenia do 10 osób. Płatność otwiera się w tej samej karcie; po powrocie z Stripe plan Full zostanie aktywowany, a sesja logowania przywrócona.</p>
+        <a href="{{ route('upgrade.stripe.start') }}" style="display: inline-block; padding: 0.65rem 1.5rem; background: #1e40af; color: #fff; text-decoration: none; border-radius: 0.5rem; font-weight: 600; font-size: 1rem;">Wybierz Full — płatność Stripe</a>
     </div>
 </div>
 @endsection
