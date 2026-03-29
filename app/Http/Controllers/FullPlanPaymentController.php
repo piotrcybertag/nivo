@@ -47,7 +47,7 @@ class FullPlanPaymentController extends Controller
         }
 
         $sessionId = $request->query('session_id');
-        if (! is_string($sessionId) || ! preg_match('/^cs_[a-zA-Z0-9]+$/', $sessionId)) {
+        if (! is_string($sessionId) || ! preg_match('/^cs_[a-zA-Z0-9_]+$/', $sessionId)) {
             return view('platnosc-full-dziekujemy', ['status' => 'brak_sesji_stripe']);
         }
 
