@@ -238,7 +238,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
                     <div class="lg:col-span-2">
                         <a href="{{ LandingAlternateUrls::homeUrl() }}" class="inline-block mb-4">
-                            <img src="{{ asset('storage/nivo.png') }}" alt="Nivo" class="h-16 sm:h-20 w-auto brightness-0 invert opacity-95">
+                            <img src="{{ asset('storage/nivo.png') }}" alt="Nivo" width="180" height="60" class="h-16 sm:h-20 w-auto max-h-20 object-contain object-left bg-transparent" loading="lazy" decoding="async">
                         </a>
                     </div>
                     <div>
