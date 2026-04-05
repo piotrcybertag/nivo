@@ -2,7 +2,7 @@
 
 return [
     'page_title' => 'Registro — Nivo',
-    'back' => '← Volver a precios',
+    'back' => '← Volver a la página principal',
     'heading' => 'Registro',
     'plan_intro' => 'Plan:',
     'plan_free' => 'Gratuito',

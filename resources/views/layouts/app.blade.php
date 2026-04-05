@@ -73,12 +73,12 @@
     @include('partials.analytics')
 </head>
 <body class="app-shell bg-gray-100 text-gray-900 antialiased min-h-screen flex flex-col">
-    <header class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm overflow-visible">
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm overflow-hidden">
         <nav class="w-full px-4 sm:px-6" aria-label="{{ __('app.nav.aria_menu') }}">
-            <div class="flex items-center justify-between h-16 overflow-visible gap-3">
+            <div class="flex items-center justify-between h-16 gap-3">
                 <div class="flex items-center gap-3 sm:gap-4 lg:gap-6 min-w-0 flex-1">
-                    <a href="{{ LandingAlternateUrls::homeUrl() }}" class="relative z-10 flex h-16 items-center shrink-0 gap-2" aria-label="{{ __('app.nav.aria_home') }}">
-                        <img src="{{ asset('storage/nivo.png') }}" alt="Nivo" class="h-[calc(4rem*0.95*2)] w-auto object-contain object-left max-w-none">
+                    <a href="{{ LandingAlternateUrls::homeUrl() }}" class="relative z-10 flex h-16 items-center shrink-0 gap-2 bg-transparent" aria-label="{{ __('app.nav.aria_home') }}">
+                        <img src="{{ asset('storage/nivo.png') }}" alt="Nivo" width="180" height="60" class="h-[3.375rem] sm:h-[3.75rem] w-auto max-h-[3.375rem] sm:max-h-[3.75rem] object-contain object-left bg-transparent select-none" decoding="async">
                         <span class="text-[0.625rem] font-semibold text-gray-500 leading-none shrink-0" title="{{ __('app.nav.version_title') }}">{{ $appVersion ?? '1' }}</span>
                     </a>
                     <div class="hidden md:flex flex-wrap items-center gap-x-4 gap-y-1 lg:gap-x-6 min-w-0">

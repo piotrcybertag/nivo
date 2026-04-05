@@ -2,7 +2,7 @@
 
 return [
     'page_title' => 'Sign up — Nivo',
-    'back' => '← Back to home',
+    'back' => '← Back to landing',
     'heading' => 'Sign up',
     'plan_intro' => 'Plan:',
     'plan_free' => 'Free',

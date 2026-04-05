@@ -106,8 +106,8 @@
         <nav class="w-full px-4 sm:px-6" aria-label="{{ __('landing.nav.home_short') }}">
             <div class="flex items-center justify-between h-16 overflow-visible">
                 <div class="flex items-center gap-4 lg:gap-6 min-w-0">
-                    <a href="{{ LandingAlternateUrls::homeUrl() }}" class="relative z-10 flex h-16 items-center shrink-0" aria-label="{{ __('landing.nav.home_short') }}">
-                        <img src="{{ asset('storage/nivo.png') }}" alt="Nivo" class="h-[calc(4rem*0.95*2)] w-auto object-contain object-left max-w-none">
+                    <a href="{{ LandingAlternateUrls::homeUrl() }}" class="relative z-10 flex h-16 items-center shrink-0 bg-transparent" aria-label="{{ __('landing.nav.home_short') }}">
+                        <img src="{{ asset('storage/nivo.png') }}" alt="Nivo" width="180" height="60" class="h-[3.375rem] sm:h-[3.75rem] w-auto max-h-[3.375rem] sm:max-h-[3.75rem] object-contain object-left bg-transparent select-none" decoding="async">
                     </a>
                     <div class="hidden md:flex items-center gap-4 lg:gap-6">
                     <div class="nav-item-mega relative">

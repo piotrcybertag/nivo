@@ -2,7 +2,7 @@
 
 return [
     'page_title' => 'Rejestracja — Nivo',
-    'back' => '← Powrót do cennika',
+    'back' => '← Powrót na stronę główną',
     'heading' => 'Rejestracja',
     'plan_intro' => 'Plan:',
     'plan_free' => 'Free',

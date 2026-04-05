@@ -528,7 +528,7 @@ class LandingAlternateUrls
     {
         $loc = self::registrationSiteLocale();
 
-        return route($loc.'.cennik');
+        return route($loc.'.landing');
     }
 
     /** @deprecated Użyj {@see siteLocalePrefix()} === 'en' */

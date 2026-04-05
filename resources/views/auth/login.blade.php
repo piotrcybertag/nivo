@@ -1,9 +1,16 @@
 @extends('layouts.app')
 
+@php
+    use App\Support\LandingAlternateUrls;
+@endphp
+
 @section('title', __('auth.title'))
 
 @section('content')
     <div style="max-width: 360px; margin: 2rem auto; padding: 1.5rem; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 1rem; font-size: 0.875rem;">
+            <a href="{{ LandingAlternateUrls::homeUrl() }}" style="color: #2563eb; text-decoration: none;">{{ __('registration.back') }}</a>
+        </p>
         <h1 style="margin: 0 0 1.25rem; font-size: 1.25rem;">{{ __('auth.heading') }}</h1>
 
         @if (session('error'))

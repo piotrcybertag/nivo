@@ -2,7 +2,7 @@
 
 return [
     'page_title' => 'Inscription — Nivo',
-    'back' => '← Retour aux tarifs',
+    'back' => '← Retour à l’accueil',
     'heading' => 'Inscription',
     'plan_intro' => 'Formule :',
     'plan_free' => 'Gratuit',
