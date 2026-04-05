@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Uzytkownik;
 use App\Services\PracownicyTableService;
+use App\Support\AdminLog;
 use App\Support\AppUrl;
 use App\Support\LandingLocalePreference;
 use Illuminate\Http\RedirectResponse;
@@ -35,6 +36,8 @@ class FullPlanPaymentController extends Controller
         if ($uzytkownik->email) {
             $url .= '&prefilled_email='.rawurlencode((string) $uzytkownik->email);
         }
+
+        AdminLog::stripeCheckoutStarted($request, $uzytkownik);
 
         return redirect()->away($url);
     }
@@ -110,6 +113,8 @@ class FullPlanPaymentController extends Controller
         if ($uzytkownik->typ !== 'ADM') {
             app(PracownicyTableService::class)->ensureTableForCurrentUser();
         }
+
+        AdminLog::stripePaymentCompleted($request, $uzytkownik, $sessionId);
 
         return view('platnosc-full-dziekujemy', [
             'status' => 'sukces',

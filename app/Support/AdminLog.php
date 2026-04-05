@@ -2,13 +2,15 @@
 
 namespace App\Support;
 
+use App\Models\Uzytkownik;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Audit trail (nawigacja landing, rejestracja, logowanie). Geolokalizacja IP przez HTTP ip-api.com.
+ * Audit trail (nawigacja landing, rejestracja, logowanie, Stripe Full). Geolokalizacja IP przez HTTP ip-api.com.
+ * Kanał `admin` (config/logging.php) — driver daily → pliki storage/logs/admin-YYYY-MM-DD.log.
  */
 final class AdminLog
 {
@@ -56,6 +58,40 @@ final class AdminLog
         Log::channel('admin')->info(sprintf(
             'login user=%s',
             self::quotify($imieNazwisko)
+        ));
+    }
+
+    /** Użytkownik przekierowany do Stripe Payment Link (plan Full). */
+    public static function stripeCheckoutStarted(Request $request, Uzytkownik $uzytkownik): void
+    {
+        if (! config('admin_audit.enabled', true)) {
+            return;
+        }
+        $ip = $request->ip() ?? 'unknown';
+        Log::channel('admin')->info(sprintf(
+            'stripe_checkout_start user_id=%d user=%s ip=%s %s',
+            $uzytkownik->id,
+            self::quotify((string) $uzytkownik->imie_nazwisko),
+            $ip,
+            self::geoSuffix($ip)
+        ));
+    }
+
+    /** Stripe potwierdził opłaconą sesję checkout; konto przełączone / zweryfikowane jako Full. */
+    public static function stripePaymentCompleted(Request $request, Uzytkownik $uzytkownik, string $sessionId): void
+    {
+        if (! config('admin_audit.enabled', true)) {
+            return;
+        }
+        $sessionId = preg_replace('/[^a-zA-Z0-9_]/', '', $sessionId) ?: '-';
+        $ip = $request->ip() ?? 'unknown';
+        Log::channel('admin')->info(sprintf(
+            'stripe_payment_paid user_id=%d user=%s session_id=%s ip=%s %s',
+            $uzytkownik->id,
+            self::quotify((string) $uzytkownik->imie_nazwisko),
+            $sessionId,
+            $ip,
+            self::geoSuffix($ip)
         ));
     }
 
