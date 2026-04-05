@@ -12,7 +12,11 @@ use App\Models\Pracownik;
 use App\Models\Uzytkownik;
 use App\Services\PracownicyTableService;
 use App\Support\AdminLog;
+use App\Support\AppUrl;
+use App\Support\LandingAlternateUrls;
 use App\Support\LandingLocalePreference;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -44,153 +48,27 @@ Route::get('/robots.txt', function () {
     return response($body, 200)->header('Content-Type', 'text/plain; charset=UTF-8');
 });
 
-Route::get('/sitemap.xml', function () {
-    $base = rtrim((string) config('app.url'), '/');
-    $urls = [
-        ['loc' => $base.'/', 'changefreq' => 'weekly', 'priority' => '1.0'],
-        ['loc' => $base.'/en/landing', 'changefreq' => 'weekly', 'priority' => '0.9'],
-        ['loc' => $base.'/funkcje/kartoteka', 'changefreq' => 'monthly', 'priority' => '0.85'],
-        ['loc' => $base.'/funkcje/schemat', 'changefreq' => 'monthly', 'priority' => '0.85'],
-        ['loc' => $base.'/funkcje/przeglad', 'changefreq' => 'monthly', 'priority' => '0.85'],
-        ['loc' => $base.'/en/features/directory', 'changefreq' => 'monthly', 'priority' => '0.8'],
-        ['loc' => $base.'/en/features/org-chart', 'changefreq' => 'monthly', 'priority' => '0.8'],
-        ['loc' => $base.'/en/features/overview', 'changefreq' => 'monthly', 'priority' => '0.8'],
-        ['loc' => $base.'/polityka-prywatnosci', 'changefreq' => 'yearly', 'priority' => '0.5'],
-        ['loc' => $base.'/regulamin', 'changefreq' => 'yearly', 'priority' => '0.5'],
-        ['loc' => $base.'/en/privacy-policy', 'changefreq' => 'yearly', 'priority' => '0.5'],
-        ['loc' => $base.'/en/terms-of-service', 'changefreq' => 'yearly', 'priority' => '0.5'],
-        ['loc' => $base.'/cennik', 'changefreq' => 'monthly', 'priority' => '0.9'],
-        ['loc' => $base.'/login', 'changefreq' => 'monthly', 'priority' => '0.7'],
-        ['loc' => $base.'/rejestracja', 'changefreq' => 'monthly', 'priority' => '0.8'],
-    ];
-    $lastmod = now()->toAtomString();
-    $lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ];
-    foreach ($urls as $u) {
-        $lines[] = '  <url>';
-        $lines[] = '    <loc>'.htmlspecialchars($u['loc'], ENT_XML1 | ENT_QUOTES, 'UTF-8').'</loc>';
-        $lines[] = '    <lastmod>'.htmlspecialchars($lastmod, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</lastmod>';
-        $lines[] = '    <changefreq>'.htmlspecialchars($u['changefreq'], ENT_XML1 | ENT_QUOTES, 'UTF-8').'</changefreq>';
-        $lines[] = '    <priority>'.htmlspecialchars($u['priority'], ENT_XML1 | ENT_QUOTES, 'UTF-8').'</priority>';
-        $lines[] = '  </url>';
-    }
-    $lines[] = '</urlset>';
-    $xml = implode("\n", $lines)."\n";
-
-    return response($xml, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
-});
-
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
 Route::get('/landing/set-locale/{locale}', LandingLocaleController::class)
     ->middleware('admin.audit:nav')
-    ->where('locale', 'pl|en')
+    ->where('locale', 'pl|en|es|fr|de')
     ->name('landing.set_locale');
 
-Route::middleware('landing.locale:pl')->group(function (): void {
-    Route::get('/', function (Request $request) {
-        $pref = LandingLocalePreference::cookieValue($request);
-        if ($pref === 'en') {
-            return redirect()->route('en.landing', [], 302);
-        }
-        if ($pref === 'pl' || ($pref === null && LandingLocalePreference::acceptLanguageWantsPolish($request))) {
-            return view('landing.index');
-        }
-
-        return redirect()->route('en.landing', [], 302);
-    })->middleware('admin.audit:nav')->name('home');
-    Route::get('/funkcje/{slug}', [LandingFunkcjaController::class, 'showPl'])
-        ->where('slug', 'kartoteka|schemat|przeglad')
-        ->middleware('admin.audit:nav')
-        ->name('landing.funkcja');
-    Route::get('/polityka-prywatnosci', fn () => view('landing.polityka-prywatnosci'))
-        ->middleware('admin.audit:nav')
-        ->name('polityka-prywatnosci');
-    Route::get('/regulamin', fn () => view('landing.regulamin'))
-        ->middleware('admin.audit:nav')
-        ->name('regulamin');
-    Route::post('/zgoda-na-cookies', [CookieConsentController::class, 'store'])->name('cookie.consent');
-});
-
-Route::post('/landing/kontakt', [LandingContactController::class, 'store'])
-    ->middleware('throttle:8,1')
-    ->name('landing.kontakt');
-
-Route::prefix('en')->middleware('landing.locale:en')->group(function (): void {
-    Route::get('/landing', fn () => view('landing.index'))
-        ->middleware('admin.audit:nav')
-        ->name('en.landing');
-    Route::get('/features/{slug}', [LandingFunkcjaController::class, 'showEn'])
-        ->where('slug', 'directory|org-chart|overview')
-        ->middleware('admin.audit:nav')
-        ->name('en.landing.funkcja');
-    Route::get('/privacy-policy', fn () => view('landing.privacy-en'))
-        ->middleware('admin.audit:nav')
-        ->name('en.privacy');
-    Route::get('/terms-of-service', fn () => view('landing.terms-en'))
-        ->middleware('admin.audit:nav')
-        ->name('en.terms');
-    Route::post('/landing/contact', [LandingContactController::class, 'store'])
-        ->middleware('throttle:8,1')
-        ->name('en.landing.contact');
-    Route::post('/cookie-consent', [CookieConsentController::class, 'store'])->name('en.cookie.consent');
-});
-
-Route::get('/cennik', function () {
-    return view('cennik');
-})->name('cennik');
-
-Route::get('/upgrade', function () {
-    if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_plan') !== 'FREE') {
-        return redirect()->route('home')->with('error', 'Strona tylko dla użytkowników planu Free.');
-    }
-
-    return view('upgrade');
-})->name('upgrade');
-
-Route::get('/upgrade/platnosc-stripe', [FullPlanPaymentController::class, 'start'])
-    ->name('upgrade.stripe.start');
-
-Route::get('/platnosc/full/dziekujemy', [FullPlanPaymentController::class, 'thankYou'])
-    ->name('platnosc.full.dziekujemy');
-
-Route::get('/upgrade/sukces', function () {
-    return view('upgrade-sukces');
-})->name('upgrade.sukces');
-
-Route::post('/upgrade', function () {
-    if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_plan') !== 'FREE') {
-        return redirect()->route('home')->with('error', 'Nieprawidłowe żądanie.');
-    }
-    $u = Uzytkownik::find(session('uzytkownik_id'));
-    if (! $u || $u->plan !== 'FREE') {
-        return redirect()->route('home');
-    }
-    $u->update(['plan' => 'FULL']);
-    session(['uzytkownik_plan' => 'FULL']);
-
-    return redirect()->route('home')
-        ->with('success', 'Twój plan został zmieniony na Full. Możesz teraz dodawać nieograniczoną liczbę pracowników.')
-        ->with('analytics_event', ['name' => 'upgrade_plan', 'params' => []]);
-})->name('upgrade.store');
-
-Route::get('/rejestracja', function () {
+$showRejestracjaForm = static function () {
     $plan = request('plan', 'free');
     if (! in_array($plan, ['free', 'full'], true)) {
         $plan = 'free';
     }
 
     return view('rejestracja', ['plan' => $plan]);
-})->middleware('admin.audit:registration_open')->name('rejestracja');
+};
 
-Route::post('/rejestracja', function (Request $request) {
+$storeRejestracja = static function (Request $request) {
     $plan = $request->input('plan', 'free');
     if (! in_array($plan, ['free', 'full'], true)) {
-        return redirect()->route('rejestracja')->with('error', 'Nieprawidłowy plan.');
+        $loc = LandingAlternateUrls::registrationSiteLocale($request);
+
+        return redirect()->route($loc.'.rejestracja')
+            ->with('error', __('registration.error_invalid_plan'));
     }
     $validated = $request->validate([
         'email' => 'required|email|unique:uzytkownicy,email',
@@ -201,7 +79,7 @@ Route::post('/rejestracja', function (Request $request) {
     $organizacja = trim($validated['organizacja']);
     if (Uzytkownik::whereRaw('LOWER(typ) = ?', [strtolower($organizacja)])->exists()) {
         return redirect()->back()->withInput($request->only('email', 'imie_nazwisko', 'organizacja'))
-            ->with('error', 'Organizacja o tej nazwie jest już zarejestrowana. Wybierz inną nazwę.');
+            ->with('error', __('registration.error_org_taken'));
     }
     $validated['typ'] = $organizacja;
     $validated['plan'] = strtoupper($plan);
@@ -210,14 +88,15 @@ Route::post('/rejestracja', function (Request $request) {
     $u = Uzytkownik::create($validated);
     AdminLog::userRegistered((string) $u->imie_nazwisko, (string) $u->plan);
 
-    return redirect()->route('login')
-        ->with('success', 'Konto zostało utworzone. Zaloguj się.')
-        ->with('analytics_event', ['name' => 'sign_up', 'params' => []]);
-})->name('rejestracja.store');
+    $loc = LandingAlternateUrls::registrationSiteLocale($request);
 
-Route::get('/schemat', function () {
+    return redirect()->route($loc.'.login')
+        ->with('success', __('registration.success_created'))
+        ->with('analytics_event', ['name' => 'sign_up', 'params' => []]);
+};
+
+$schematHandler = static function (): View|RedirectResponse {
     $pracownikId = request('pracownik');
-    $nadSzefem = null;
     $withPodwladni = [
         'podwladni' => fn ($q) => $q->orderBy('nazwisko')->orderBy('imie')->withCount('podwladni')->withCount('podwladniMatrix'),
         'podwladniMatrix' => fn ($q) => $q->orderBy('nazwisko')->orderBy('imie')->withCount('podwladni')->withCount('podwladniMatrix'),
@@ -228,7 +107,9 @@ Route::get('/schemat', function () {
             ->with(array_merge($withPodwladni, ['szef', 'szefMatrix']))
             ->find($pracownikId);
         if (! $root) {
-            return redirect()->route('schemat');
+            $rn = request()->route()?->getName();
+
+            return is_string($rn) ? redirect()->route($rn) : redirect()->route(AppUrl::uiLocale().'.schemat');
         }
         $korzenie = collect([$root]);
         $nadSzefowie = [];
@@ -285,9 +166,9 @@ Route::get('/schemat', function () {
     }
 
     return view('schemat', compact('korzenie', 'nadSzefowie', 'szukaj', 'wynikiWyszukiwania', 'totalPracownikow'));
-})->name('schemat');
+};
 
-Route::get('/przeglad', function () {
+$przegladHandler = static function (): View {
     $loadTree = function ($p, $depth = 25) use (&$loadTree) {
         if ($depth <= 0) {
             return;
@@ -309,62 +190,297 @@ Route::get('/przeglad', function () {
     }
 
     return view('przeglad', compact('korzenie'));
-})->name('przeglad');
+};
 
-Route::get('/instrukcja', function () {
-    if (! session('uzytkownik_id') || session('login_via_link')) {
-        return redirect()->route('home')->with('error', 'Instrukcja jest dostępna tylko po zalogowaniu hasłem.');
-    }
+$registerLocaleAppRoutes = static function (string $loc) use ($schematHandler, $przegladHandler): void {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name($loc.'.login');
+    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/logout', [LoginController::class, 'logout'])->name($loc.'.logout');
 
-    return view('instrukcja');
-})->name('instrukcja');
+    Route::get('/upgrade', static function () {
+        if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_plan') !== 'FREE') {
+            return redirect()->route('home')->with('error', __('app.errors.upgrade_page_free_only'));
+        }
 
-Route::get('/ustawienia', function () {
-    if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_typ') === 'ADM') {
-        return redirect()->route('home')->with('error', 'Strona niedostępna.');
-    }
-    $uzytkownik = Uzytkownik::find(session('uzytkownik_id'));
+        return view('upgrade');
+    })->name($loc.'.upgrade');
 
-    return view('ustawienia', ['uzytkownik' => $uzytkownik]);
-})->name('ustawienia');
+    Route::get('/upgrade/sukces', static fn () => view('upgrade-sukces'))->name($loc.'.upgrade.sukces');
 
-Route::post('/ustawienia/generuj-link', function () {
-    if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_typ') === 'ADM') {
-        return redirect()->route('home')->with('error', 'Strona niedostępna.');
-    }
-    $uzytkownik = Uzytkownik::find(session('uzytkownik_id'));
-    if (! $uzytkownik) {
-        return redirect()->route('ustawienia')->with('error', 'Nie znaleziono użytkownika.');
-    }
-    $token = Str::random(15);
-    while (Uzytkownik::where('login_link_token', $token)->exists()) {
+    Route::post('/upgrade', static function () {
+        if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_plan') !== 'FREE') {
+            return redirect()->route('home')->with('error', __('app.errors.upgrade_invalid_request'));
+        }
+        $u = Uzytkownik::find(session('uzytkownik_id'));
+        if (! $u || $u->plan !== 'FREE') {
+            return redirect()->route('home');
+        }
+        $u->update(['plan' => 'FULL']);
+        session(['uzytkownik_plan' => 'FULL']);
+
+        return redirect()->route('home')
+            ->with('success', __('app.errors.upgrade_plan_changed'))
+            ->with('analytics_event', ['name' => 'upgrade_plan', 'params' => []]);
+    })->name($loc.'.upgrade.store');
+
+    Route::get('/schemat', $schematHandler)->name($loc.'.schemat');
+    Route::get('/przeglad', $przegladHandler)->name($loc.'.przeglad');
+
+    Route::get('/instrukcja', static function () {
+        if (! session('uzytkownik_id') || session('login_via_link')) {
+            return redirect()->route('home')->with('error', __('app.errors.instrukcja_password_only'));
+        }
+
+        return view('instrukcja');
+    })->name($loc.'.instrukcja');
+
+    Route::get('/ustawienia', static function () {
+        if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_typ') === 'ADM') {
+            return redirect()->route('home')->with('error', __('app.errors.page_unavailable'));
+        }
+        $uzytkownik = Uzytkownik::find(session('uzytkownik_id'));
+
+        return view('ustawienia', ['uzytkownik' => $uzytkownik]);
+    })->name($loc.'.ustawienia');
+
+    Route::post('/ustawienia/generuj-link', static function () use ($loc) {
+        if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_typ') === 'ADM') {
+            return redirect()->route('home')->with('error', __('app.errors.page_unavailable'));
+        }
+        $uzytkownik = Uzytkownik::find(session('uzytkownik_id'));
+        if (! $uzytkownik) {
+            return redirect()->route($loc.'.ustawienia')->with('error', __('app.errors.user_not_found'));
+        }
         $token = Str::random(15);
+        while (Uzytkownik::where('login_link_token', $token)->exists()) {
+            $token = Str::random(15);
+        }
+        $uzytkownik->update(['login_link_token' => $token]);
+        $link = url('/'.$token);
+
+        return redirect()
+            ->route($loc.'.ustawienia')
+            ->with('success', __('app.errors.link_generated'))
+            ->with('generated_login_link', $link);
+    })->name($loc.'.ustawienia.generuj-link');
+
+    Route::get('/kartoteki', static fn () => view('kartoteki'))->name($loc.'.kartoteki');
+
+    Route::prefix('kartoteki')->name($loc.'.kartoteki.')->group(function () {
+        Route::resource('pracownicy', PracownikController::class)
+            ->parameters(['pracownicy' => 'pracownik'])
+            ->names('pracownicy');
+        Route::post('uzytkownicy/{uzytkownik}/generuj-link', [UzytkownikController::class, 'generateLoginLink'])
+            ->name('uzytkownicy.generate-link')
+            ->middleware('uzytkownik.adm');
+        Route::resource('uzytkownicy', UzytkownikController::class)
+            ->parameters(['uzytkownicy' => 'uzytkownik'])
+            ->names('uzytkownicy')
+            ->middleware('uzytkownik.adm');
+    });
+};
+
+Route::get('/', function (Request $request) {
+    $pref = LandingLocalePreference::cookieValue($request);
+    if ($pref !== null) {
+        return redirect()->route(LandingLocalePreference::landingRouteNameForLocale($pref), [], 302);
     }
-    $uzytkownik->update(['login_link_token' => $token]);
-    $link = url('/'.$token);
 
-    return redirect()
-        ->route('ustawienia')
-        ->with('success', 'Link wygenerowany.')
-        ->with('generated_login_link', $link);
-})->name('ustawienia.generuj-link');
+    $browser = LandingLocalePreference::preferredLocaleFromAcceptLanguage($request);
+    if ($browser !== null) {
+        return redirect()->route(LandingLocalePreference::landingRouteNameForLocale($browser), [], 302);
+    }
 
-Route::get('/kartoteki', function () {
-    return view('kartoteki');
-})->name('kartoteki');
+    return redirect()->route('en.landing', [], 302);
+})->middleware('admin.audit:nav')->name('home');
 
-Route::prefix('kartoteki')->name('kartoteki.')->group(function () {
-    Route::resource('pracownicy', PracownikController::class)
-        ->parameters(['pracownicy' => 'pracownik'])
-        ->names('pracownicy');
-    Route::post('uzytkownicy/{uzytkownik}/generuj-link', [UzytkownikController::class, 'generateLoginLink'])
-        ->name('uzytkownicy.generate-link')
-        ->middleware('uzytkownik.adm');
-    Route::resource('uzytkownicy', UzytkownikController::class)
-        ->parameters(['uzytkownicy' => 'uzytkownik'])
-        ->names('uzytkownicy')
-        ->middleware('uzytkownik.adm');
+Route::redirect('/pl', '/pl/landing', 302);
+
+Route::prefix('pl')->middleware('landing.locale:pl')->group(function () use ($showRejestracjaForm, $storeRejestracja, $registerLocaleAppRoutes): void {
+    Route::get('/landing', fn () => view('landing.index'))
+        ->middleware('admin.audit:nav')
+        ->name('pl.landing');
+    Route::get('/funkcje/{slug}', [LandingFunkcjaController::class, 'showPl'])
+        ->where('slug', 'kartoteka|schemat|przeglad')
+        ->middleware('admin.audit:nav')
+        ->name('pl.landing.funkcja');
+    Route::get('/polityka-prywatnosci', fn () => view('landing.polityka-prywatnosci'))
+        ->middleware('admin.audit:nav')
+        ->name('pl.polityka-prywatnosci');
+    Route::get('/regulamin', fn () => view('landing.regulamin'))
+        ->middleware('admin.audit:nav')
+        ->name('pl.regulamin');
+    Route::post('/zgoda-na-cookies', [CookieConsentController::class, 'store'])->name('pl.cookie.consent');
+    Route::post('/landing/kontakt', [LandingContactController::class, 'store'])
+        ->middleware('throttle:8,1')
+        ->name('pl.landing.kontakt');
+    Route::get('/cennik', fn () => view('cennik'))->name('pl.cennik');
+    Route::get('/rejestracja', $showRejestracjaForm)
+        ->middleware('admin.audit:registration_open')
+        ->name('pl.rejestracja');
+    Route::post('/rejestracja', $storeRejestracja)->name('pl.rejestracja.store');
+    $registerLocaleAppRoutes('pl');
 });
+
+Route::prefix('en')->middleware('landing.locale:en')->group(function () use ($showRejestracjaForm, $storeRejestracja, $registerLocaleAppRoutes): void {
+    Route::get('/landing', fn () => view('landing.index'))
+        ->middleware('admin.audit:nav')
+        ->name('en.landing');
+    Route::get('/features/{slug}', [LandingFunkcjaController::class, 'showEn'])
+        ->where('slug', 'directory|org-chart|overview')
+        ->middleware('admin.audit:nav')
+        ->name('en.landing.funkcja');
+    Route::get('/privacy-policy', fn () => view('landing.privacy-en'))
+        ->middleware('admin.audit:nav')
+        ->name('en.privacy');
+    Route::get('/terms-of-service', fn () => view('landing.terms-en'))
+        ->middleware('admin.audit:nav')
+        ->name('en.terms');
+    Route::post('/landing/contact', [LandingContactController::class, 'store'])
+        ->middleware('throttle:8,1')
+        ->name('en.landing.contact');
+    Route::post('/cookie-consent', [CookieConsentController::class, 'store'])->name('en.cookie.consent');
+    Route::get('/cennik', fn () => view('cennik'))->name('en.cennik');
+    Route::get('/rejestracja', $showRejestracjaForm)
+        ->middleware('admin.audit:registration_open')
+        ->name('en.rejestracja');
+    Route::post('/rejestracja', $storeRejestracja)->name('en.rejestracja.store');
+    $registerLocaleAppRoutes('en');
+});
+
+Route::redirect('/es', '/es/landing', 302);
+
+Route::prefix('es')->middleware('landing.locale:es')->group(function () use ($showRejestracjaForm, $storeRejestracja, $registerLocaleAppRoutes): void {
+    Route::get('/landing', fn () => view('landing.index'))
+        ->middleware('admin.audit:nav')
+        ->name('es.landing');
+    Route::get('/funciones/{slug}', [LandingFunkcjaController::class, 'showEs'])
+        ->where('slug', 'directorio|organigrama|vista-general')
+        ->middleware('admin.audit:nav')
+        ->name('es.landing.funkcja');
+    Route::get('/politica-privacidad', fn () => view('landing.privacy-es'))
+        ->middleware('admin.audit:nav')
+        ->name('es.privacy');
+    Route::get('/terminos', fn () => view('landing.terms-es'))
+        ->middleware('admin.audit:nav')
+        ->name('es.terms');
+    Route::post('/landing/contacto', [LandingContactController::class, 'store'])
+        ->middleware('throttle:8,1')
+        ->name('es.landing.contact');
+    Route::post('/consentimiento-cookies', [CookieConsentController::class, 'store'])->name('es.cookie.consent');
+    Route::get('/cennik', fn () => view('cennik'))->name('es.cennik');
+    Route::get('/rejestracja', $showRejestracjaForm)
+        ->middleware('admin.audit:registration_open')
+        ->name('es.rejestracja');
+    Route::post('/rejestracja', $storeRejestracja)->name('es.rejestracja.store');
+    $registerLocaleAppRoutes('es');
+});
+
+Route::redirect('/fr', '/fr/landing', 302);
+
+Route::prefix('fr')->middleware('landing.locale:fr')->group(function () use ($showRejestracjaForm, $storeRejestracja, $registerLocaleAppRoutes): void {
+    Route::get('/landing', fn () => view('landing.index'))
+        ->middleware('admin.audit:nav')
+        ->name('fr.landing');
+    Route::get('/fonctions/{slug}', [LandingFunkcjaController::class, 'showFr'])
+        ->where('slug', 'annuaire|organigramme|vue-ensemble')
+        ->middleware('admin.audit:nav')
+        ->name('fr.landing.funkcja');
+    Route::get('/politique-de-confidentialite', fn () => view('landing.privacy-fr'))
+        ->middleware('admin.audit:nav')
+        ->name('fr.privacy');
+    Route::get('/conditions', fn () => view('landing.terms-fr'))
+        ->middleware('admin.audit:nav')
+        ->name('fr.terms');
+    Route::post('/landing/contact', [LandingContactController::class, 'store'])
+        ->middleware('throttle:8,1')
+        ->name('fr.landing.contact');
+    Route::post('/consentement-cookies', [CookieConsentController::class, 'store'])->name('fr.cookie.consent');
+    Route::get('/cennik', fn () => view('cennik'))->name('fr.cennik');
+    Route::get('/rejestracja', $showRejestracjaForm)
+        ->middleware('admin.audit:registration_open')
+        ->name('fr.rejestracja');
+    Route::post('/rejestracja', $storeRejestracja)->name('fr.rejestracja.store');
+    $registerLocaleAppRoutes('fr');
+});
+
+Route::redirect('/de', '/de/landing', 302);
+
+Route::prefix('de')->middleware('landing.locale:de')->group(function () use ($showRejestracjaForm, $storeRejestracja, $registerLocaleAppRoutes): void {
+    Route::get('/landing', fn () => view('landing.index'))
+        ->middleware('admin.audit:nav')
+        ->name('de.landing');
+    Route::get('/funktionen/{slug}', [LandingFunkcjaController::class, 'showDe'])
+        ->where('slug', 'verzeichnis|organigramm|ueberblick')
+        ->middleware('admin.audit:nav')
+        ->name('de.landing.funkcja');
+    Route::get('/datenschutz', fn () => view('landing.privacy-de'))
+        ->middleware('admin.audit:nav')
+        ->name('de.privacy');
+    Route::get('/nutzungsbedingungen', fn () => view('landing.terms-de'))
+        ->middleware('admin.audit:nav')
+        ->name('de.terms');
+    Route::post('/landing/kontakt', [LandingContactController::class, 'store'])
+        ->middleware('throttle:8,1')
+        ->name('de.landing.contact');
+    Route::post('/cookie-einwilligung', [CookieConsentController::class, 'store'])->name('de.cookie.consent');
+    Route::get('/cennik', fn () => view('cennik'))->name('de.cennik');
+    Route::get('/rejestracja', $showRejestracjaForm)
+        ->middleware('admin.audit:registration_open')
+        ->name('de.rejestracja');
+    Route::post('/rejestracja', $storeRejestracja)->name('de.rejestracja.store');
+    $registerLocaleAppRoutes('de');
+});
+
+Route::post('/landing/kontakt', [LandingContactController::class, 'store'])
+    ->middleware('throttle:8,1');
+Route::post('/zgoda-na-cookies', [CookieConsentController::class, 'store']);
+
+Route::redirect('/funkcje/{slug}', '/pl/funkcje/{slug}', 302)
+    ->where('slug', 'kartoteka|schemat|przeglad');
+Route::redirect('/polityka-prywatnosci', '/pl/polityka-prywatnosci', 302);
+Route::redirect('/regulamin', '/pl/regulamin', 302);
+Route::redirect('/cennik', '/pl/cennik', 302);
+Route::get('/rejestracja', static fn () => redirect()->route('pl.rejestracja', ['plan' => request('plan', 'free')], 302));
+
+Route::get('/login', static fn (Request $r) => redirect('/'.LandingLocalePreference::resolveLocaleForRequest($r).'/login', 302));
+Route::post('/login', [LoginController::class, 'login']);
+
+$legacyToLocalePath = static function (Request $request, string $suffix): RedirectResponse {
+    $loc = AppUrl::uiLocaleFromRequest($request);
+    $path = '/'.$loc.'/'.ltrim($suffix, '/');
+    if ($request->getQueryString()) {
+        $path .= '?'.$request->getQueryString();
+    }
+
+    return redirect($path, 302);
+};
+
+Route::get('/upgrade', static fn (Request $r) => $legacyToLocalePath($r, 'upgrade'));
+Route::get('/upgrade/sukces', static fn (Request $r) => $legacyToLocalePath($r, 'upgrade/sukces'));
+Route::get('/schemat', static fn (Request $r) => $legacyToLocalePath($r, 'schemat'));
+Route::get('/przeglad', static fn (Request $r) => $legacyToLocalePath($r, 'przeglad'));
+Route::get('/instrukcja', static fn (Request $r) => $legacyToLocalePath($r, 'instrukcja'));
+Route::get('/ustawienia', static fn (Request $r) => $legacyToLocalePath($r, 'ustawienia'));
+Route::get('/kartoteki', static fn (Request $r) => $legacyToLocalePath($r, 'kartoteki'));
+
+Route::any('/kartoteki/{any?}', static function (Request $request, ?string $any = null) {
+    $base = 'kartoteki'.($any !== null && $any !== '' ? '/'.$any : '');
+    $loc = AppUrl::uiLocaleFromRequest($request);
+    $path = '/'.$loc.'/'.$base;
+    if ($request->getQueryString()) {
+        $path .= '?'.$request->getQueryString();
+    }
+    $status = ($request->isMethod('GET') || $request->isMethod('HEAD')) ? 302 : 307;
+
+    return redirect($path, $status);
+})->where('any', '.*');
+
+Route::get('/upgrade/platnosc-stripe', [FullPlanPaymentController::class, 'start'])
+    ->name('upgrade.stripe.start');
+
+Route::get('/platnosc/full/dziekujemy', [FullPlanPaymentController::class, 'thankYou'])
+    ->name('platnosc.full.dziekujemy');
 
 Route::get('/{token}', [LoginController::class, 'loginViaLink'])
     ->where('token', '[a-zA-Z0-9]{15}')

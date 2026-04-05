@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pracownik;
 use App\Services\PracownicyTableService;
+use App\Support\AppUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,6 +16,7 @@ class PracownikController extends Controller
         $pracownicy = Pracownik::with('szef', 'szefMatrix')->orderBy('nazwisko')->orderBy('imie')->paginate(15);
         $limitFree = 10;
         $canAddPracownik = session('uzytkownik_plan') === 'FULL' || Pracownik::count() < $limitFree;
+
         return view('pracownicy.index', compact('pracownicy', 'canAddPracownik', 'limitFree'));
     }
 
@@ -22,10 +24,11 @@ class PracownikController extends Controller
     {
         $limitFree = 10;
         if (session('uzytkownik_plan') !== 'FULL' && Pracownik::count() >= $limitFree) {
-            return redirect()->route('kartoteki.pracownicy.index')
-                ->with('error', 'Plan Free pozwala na maksymalnie 10 pracowników. Przejdź na plan Full w Ustawieniach, aby dodać więcej.');
+            return redirect()->to(AppUrl::route('kartoteki.pracownicy.index'))
+                ->with('error', __('employees.flash_free_limit'));
         }
         $pracownicy = Pracownik::orderBy('nazwisko')->orderBy('imie')->get();
+
         return view('pracownicy.create', compact('pracownicy'));
     }
 
@@ -33,8 +36,8 @@ class PracownikController extends Controller
     {
         $limitFree = 10;
         if (session('uzytkownik_plan') !== 'FULL' && Pracownik::count() >= $limitFree) {
-            return redirect()->route('kartoteki.pracownicy.index')
-                ->with('error', 'Plan Free pozwala na maksymalnie 10 pracowników. Przejdź na plan Full w Ustawieniach, aby dodać więcej.');
+            return redirect()->to(AppUrl::route('kartoteki.pracownicy.index'))
+                ->with('error', __('employees.flash_free_limit'));
         }
 
         $tabela = app(PracownicyTableService::class)->getTableName();
@@ -43,14 +46,14 @@ class PracownikController extends Controller
             'nazwisko' => 'required|string|max:255',
             'stanowisko' => 'required|string|max:255',
             'grupa' => 'boolean',
-            'id_szefa' => 'nullable|exists:' . $tabela . ',id',
-            'szef_matrix' => 'nullable|exists:' . $tabela . ',id',
+            'id_szefa' => 'nullable|exists:'.$tabela.',id',
+            'szef_matrix' => 'nullable|exists:'.$tabela.',id',
         ]);
         $validated['grupa'] = $request->boolean('grupa');
 
         Pracownik::create($validated);
         $count = Pracownik::count();
-        $redirect = redirect()->route('kartoteki.pracownicy.index')->with('success', 'Pracownik został dodany.');
+        $redirect = redirect()->to(AppUrl::route('kartoteki.pracownicy.index'))->with('success', __('employees.flash_created'));
         if ($count === 1) {
             $redirect->with('analytics_events', [
                 ['name' => 'create_structure', 'params' => []],
@@ -59,12 +62,14 @@ class PracownikController extends Controller
         } else {
             $redirect->with('analytics_event', ['name' => 'add_employee', 'params' => []]);
         }
+
         return $redirect;
     }
 
     public function show(Pracownik $pracownik): View
     {
         $pracownik->load('szef', 'szefMatrix', 'podwladni', 'podwladniMatrix');
+
         return view('pracownicy.show', compact('pracownik'));
     }
 
@@ -72,6 +77,7 @@ class PracownikController extends Controller
     {
         $pracownicy = Pracownik::where('id', '!=', $pracownik->id)
             ->orderBy('nazwisko')->orderBy('imie')->get();
+
         return view('pracownicy.edit', compact('pracownik', 'pracownicy'));
     }
 
@@ -83,18 +89,20 @@ class PracownikController extends Controller
             'nazwisko' => 'required|string|max:255',
             'stanowisko' => 'required|string|max:255',
             'grupa' => 'boolean',
-            'id_szefa' => 'nullable|exists:' . $tabela . ',id',
-            'szef_matrix' => 'nullable|exists:' . $tabela . ',id',
+            'id_szefa' => 'nullable|exists:'.$tabela.',id',
+            'szef_matrix' => 'nullable|exists:'.$tabela.',id',
         ]);
         $validated['grupa'] = $request->boolean('grupa');
 
         $pracownik->update($validated);
-        return redirect()->route('kartoteki.pracownicy.index')->with('success', 'Pracownik został zaktualizowany.');
+
+        return redirect()->to(AppUrl::route('kartoteki.pracownicy.index'))->with('success', __('employees.flash_updated'));
     }
 
     public function destroy(Pracownik $pracownik): RedirectResponse
     {
         $pracownik->delete();
-        return redirect()->route('kartoteki.pracownicy.index')->with('success', 'Pracownik został usunięty.');
+
+        return redirect()->to(AppUrl::route('kartoteki.pracownicy.index'))->with('success', __('employees.flash_deleted'));
     }
 }

@@ -14,7 +14,8 @@ class EnsureUserIsAdm
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Brak uprawnień.'], 403);
             }
-            return redirect()->route('home')->with('error', 'Dostęp tylko dla administratora (ADM).');
+
+            return redirect()->route('home')->with('error', __('app.errors.adm_only'));
         }
 
         return $next($request);

@@ -1,3 +1,7 @@
+@php
+    use App\Support\AppUrl;
+    use App\Support\LandingAlternateUrls;
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -5,21 +9,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @include('partials.favicon-links')
     <title>@yield('title', config('app.name', 'Laravel'))</title>
+    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700" rel="stylesheet">
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+        <script src="https://cdn.tailwindcss.com"></script>
     @endif
     <style>
-        .navbar { background-color: #b8d4e8; padding: 0.75rem 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-        .navbar-inner { max-width: none; margin: 0 auto; display: flex; gap: 1.5rem; padding: 0 1rem; }
-        .navbar a { color: #000; text-decoration: none; font-weight: 500; }
-        .navbar a:hover { text-decoration: underline; }
-        .navbar-logo { padding: 0; line-height: 0; }
-        .navbar-logo:hover { text-decoration: none; opacity: 0.9; }
-        .navbar-logo-wrap { display: flex; flex-direction: row; align-items: flex-end; gap: 0.35rem; margin-right: 0.25rem; }
-        .navbar-logo img { width: 32px; height: 32px; object-fit: contain; display: block; }
-        .navbar-version { font-size: 0.625rem; color: #374151; line-height: 1; padding-bottom: 2px; }
-        body { min-height: 100vh; background: #f9fafb; margin: 0; font-family: system-ui, sans-serif; }
-        main { max-width: none; margin: 0 auto; padding: 1rem; }
+        body.app-shell { font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif; }
+        main.app-main { max-width: none; margin: 0 auto; }
         .schemat-strona { display: flex; gap: 1.5rem; align-items: flex-start; max-width: 100%; }
         .schemat-panel-boczny { flex-shrink: 0; width: 280px; padding: 1rem; background: #fff; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; }
         .schemat-szukaj-form { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -74,53 +72,87 @@
     </style>
     @include('partials.analytics')
 </head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <div class="navbar-logo-wrap">
-                <a href="{{ url('/') }}" class="navbar-logo" aria-label="Nivo – strona główna">
-                    <img src="{{ asset('storage/nivo.png') }}" alt="Nivo" width="32" height="32" style="display: block;">
-                </a>
-                <span class="navbar-version" title="Wersja aplikacji">{{ $appVersion ?? '1' }}</span>
+<body class="app-shell bg-gray-100 text-gray-900 antialiased min-h-screen flex flex-col">
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm overflow-visible">
+        <nav class="w-full px-4 sm:px-6" aria-label="{{ __('app.nav.aria_menu') }}">
+            <div class="flex items-center justify-between h-16 overflow-visible gap-3">
+                <div class="flex items-center gap-3 sm:gap-4 lg:gap-6 min-w-0 flex-1">
+                    <a href="{{ LandingAlternateUrls::homeUrl() }}" class="relative z-10 flex h-16 items-center shrink-0 gap-2" aria-label="{{ __('app.nav.aria_home') }}">
+                        <img src="{{ asset('storage/nivo.png') }}" alt="Nivo" class="h-[calc(4rem*0.95*2)] w-auto object-contain object-left max-w-none">
+                        <span class="text-[0.625rem] font-semibold text-gray-500 leading-none shrink-0" title="{{ __('app.nav.version_title') }}">{{ $appVersion ?? '1' }}</span>
+                    </a>
+                    <div class="hidden md:flex flex-wrap items-center gap-x-4 gap-y-1 lg:gap-x-6 min-w-0">
+                        <a href="{{ LandingAlternateUrls::homeUrl() }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.brand') }}</a>
+                        @if(!session('uzytkownik_id') && !request()->routeIs('pl.rejestracja', 'en.rejestracja', 'es.rejestracja', 'fr.rejestracja', 'de.rejestracja', 'pl.login', 'en.login', 'es.login', 'fr.login', 'de.login'))
+                            <a href="{{ AppUrl::route('cennik') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.pricing') }}</a>
+                        @endif
+                        @if(session('uzytkownik_id'))
+                            @if(!session('login_via_link'))
+                                <a href="{{ AppUrl::route('kartoteki.pracownicy.index') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.employees') }}</a>
+                            @endif
+                            <a href="{{ AppUrl::route('schemat') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.org_chart') }}</a>
+                            <a href="{{ AppUrl::route('przeglad') }}" target="_blank" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.overview') }}</a>
+                            @if(!session('login_via_link'))
+                                <a href="{{ AppUrl::route('instrukcja') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.manual') }}</a>
+                                @if(session('uzytkownik_typ') !== 'ADM')
+                                    <a href="{{ AppUrl::route('ustawienia') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.settings') }}</a>
+                                @endif
+                            @endif
+                            @if(session('uzytkownik_typ') === 'ADM')
+                                <a href="{{ AppUrl::route('kartoteki.uzytkownicy.index') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.users') }}</a>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                    @if(session('uzytkownik_id'))
+                        @if(!session('login_via_link'))
+                            <form method="POST" action="{{ AppUrl::route('logout') }}" class="inline">
+                                @csrf
+                                <button type="submit" class="text-sm font-semibold text-gray-800 hover:text-violet-700 bg-transparent border-0 p-0 cursor-pointer whitespace-nowrap">{{ __('app.nav.logout', ['name' => session('uzytkownik_imie_nazwisko')]) }}</button>
+                            </form>
+                        @endif
+                    @else
+                        @if(!request()->routeIs('pl.login', 'en.login', 'es.login', 'fr.login', 'de.login'))
+                            <a href="{{ AppUrl::route('login') }}" class="inline-flex items-center px-4 sm:px-5 py-2.5 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition shadow-sm shadow-violet-600/20">{{ __('app.nav.login') }}</a>
+                        @endif
+                    @endif
+                </div>
             </div>
-            <a href="{{ url('/') }}">Nivo</a>
-            @if(!session('uzytkownik_id'))
-                <a href="{{ route('cennik') }}">Cennik</a>
+        </nav>
+        <div class="md:hidden border-t border-gray-100 bg-white px-4 py-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm font-semibold text-gray-800">
+            <a href="{{ LandingAlternateUrls::homeUrl() }}" class="hover:text-violet-700">{{ __('app.nav.brand') }}</a>
+            @if(!session('uzytkownik_id') && !request()->routeIs('pl.rejestracja', 'en.rejestracja', 'es.rejestracja', 'fr.rejestracja', 'de.rejestracja', 'pl.login', 'en.login', 'es.login', 'fr.login', 'de.login'))
+                <a href="{{ AppUrl::route('cennik') }}" class="hover:text-violet-700">{{ __('app.nav.pricing') }}</a>
             @endif
             @if(session('uzytkownik_id'))
                 @if(!session('login_via_link'))
-                    <a href="{{ route('kartoteki.pracownicy.index') }}">Pracownicy</a>
+                    <a href="{{ AppUrl::route('kartoteki.pracownicy.index') }}" class="hover:text-violet-700">{{ __('app.nav.employees') }}</a>
                 @endif
-                <a href="{{ route('schemat') }}">Schemat</a>
-                <a href="{{ route('przeglad') }}" target="_blank">Przegląd</a>
+                <a href="{{ AppUrl::route('schemat') }}" class="hover:text-violet-700">{{ __('app.nav.org_chart') }}</a>
+                <a href="{{ AppUrl::route('przeglad') }}" target="_blank" class="hover:text-violet-700">{{ __('app.nav.overview') }}</a>
                 @if(!session('login_via_link'))
-                    <a href="{{ route('instrukcja') }}">Instrukcja</a>
+                    <a href="{{ AppUrl::route('instrukcja') }}" class="hover:text-violet-700">{{ __('app.nav.manual') }}</a>
                     @if(session('uzytkownik_typ') !== 'ADM')
-                        <a href="{{ route('ustawienia') }}">Ustawienia</a>
+                        <a href="{{ AppUrl::route('ustawienia') }}" class="hover:text-violet-700">{{ __('app.nav.settings') }}</a>
                     @endif
                 @endif
                 @if(session('uzytkownik_typ') === 'ADM')
-                    <a href="{{ route('kartoteki.uzytkownicy.index') }}">Users</a>
-                @endif
-                @if(!session('login_via_link'))
-                    <form method="POST" action="{{ route('logout') }}" style="display: inline; margin-left: auto;">
-                        @csrf
-                        <button type="submit" style="background: none; border: none; padding: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: none;">Wyloguj ({{ session('uzytkownik_imie_nazwisko') }})</button>
-                    </form>
-                @endif
-            @else
-                @if(!request()->routeIs('login'))
-                    <a href="{{ route('login') }}" style="margin-left: auto;">Zaloguj</a>
+                    <a href="{{ AppUrl::route('kartoteki.uzytkownicy.index') }}" class="hover:text-violet-700">{{ __('app.nav.users') }}</a>
                 @endif
             @endif
         </div>
-    </nav>
-    <main>
+    </header>
+    <main class="app-main flex-1 w-full p-4 sm:p-6">
         @if (session('error'))
-            <p style="padding: 0.75rem 1rem; background: #fee2e2; color: #991b1b; border-radius: 0.375rem; margin-bottom: 1rem;">{{ session('error') }}</p>
+            <div class="max-w-4xl mx-auto mb-4">
+                <p class="p-4 bg-red-50 text-red-800 rounded-lg text-sm font-medium border border-red-100">{{ session('error') }}</p>
+            </div>
         @endif
         @if (session('success'))
-            <p style="padding: 0.75rem 1rem; background: #d1fae8; color: #065f46; border-radius: 0.375rem; margin-bottom: 1rem;">{{ session('success') }}</p>
+            <div class="max-w-4xl mx-auto mb-4">
+                <p class="p-4 bg-emerald-50 text-emerald-900 rounded-lg text-sm font-medium border border-emerald-100">{{ session('success') }}</p>
+            </div>
         @endif
         @yield('content')
     </main>

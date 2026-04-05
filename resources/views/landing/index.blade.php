@@ -1,6 +1,7 @@
 @extends('landing.layout')
 
 @php
+    use App\Support\AppUrl;
     use App\Support\LandingAlternateUrls;
 @endphp
 
@@ -20,17 +21,17 @@
             </p>
             <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                 @if(session('uzytkownik_id'))
-                    <a href="{{ route('schemat') }}" class="inline-flex items-center justify-center px-8 py-4 bg-violet-600 text-white font-bold rounded-lg hover:bg-violet-700 transition shadow-lg shadow-violet-600/30">
+                    <a href="{{ LandingAlternateUrls::appSchematUrl() }}" class="inline-flex items-center justify-center px-8 py-4 bg-violet-600 text-white font-bold rounded-lg hover:bg-violet-700 transition shadow-lg shadow-violet-600/30">
                         {{ __('landing.index.cta_open_schemat') }}
                     </a>
-                    <a href="{{ route('cennik') }}" class="inline-flex items-center justify-center px-8 py-4 border-2 border-slate-700 text-slate-800 font-bold rounded-lg hover:bg-slate-300/80 transition">
+                    <a href="{{ LandingAlternateUrls::cennikUrl() }}" class="inline-flex items-center justify-center px-8 py-4 border-2 border-slate-700 text-slate-800 font-bold rounded-lg hover:bg-slate-300/80 transition">
                         {{ __('landing.index.cta_pricing') }}
                     </a>
                 @else
-                    <a href="{{ route('rejestracja', ['plan' => 'free']) }}" class="inline-flex items-center justify-center px-8 py-4 bg-violet-600 text-white font-bold rounded-lg hover:bg-violet-700 transition shadow-lg shadow-violet-600/30">
+                    <a href="{{ LandingAlternateUrls::rejestracjaUrl('free') }}" class="inline-flex items-center justify-center px-8 py-4 bg-violet-600 text-white font-bold rounded-lg hover:bg-violet-700 transition shadow-lg shadow-violet-600/30">
                         {{ __('landing.index.cta_try_free') }}
                     </a>
-                    <a href="{{ route('login') }}" class="inline-flex items-center justify-center px-8 py-4 border-2 border-slate-700 text-slate-800 font-bold rounded-lg hover:bg-slate-300/80 transition">
+                    <a href="{{ LandingAlternateUrls::loginUrl() }}" class="inline-flex items-center justify-center px-8 py-4 border-2 border-slate-700 text-slate-800 font-bold rounded-lg hover:bg-slate-300/80 transition">
                         {{ __('landing.index.cta_login') }}
                     </a>
                 @endif
@@ -77,11 +78,11 @@
         <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">{{ __('landing.index.cta2_title') }}</h2>
         <p class="text-slate-800 font-semibold mb-6 max-w-2xl mx-auto">{{ __('landing.index.cta2_sub') }}</p>
         @if(session('uzytkownik_id'))
-            <a href="{{ route('kartoteki.pracownicy.index') }}" class="inline-flex items-center px-8 py-4 bg-violet-600 text-white font-bold rounded-lg hover:bg-violet-700 transition shadow-md shadow-violet-600/20">{{ __('landing.index.cta2_kartoteka') }}</a>
+            <a href="{{ AppUrl::route('kartoteki.pracownicy.index') }}" class="inline-flex items-center px-8 py-4 bg-violet-600 text-white font-bold rounded-lg hover:bg-violet-700 transition shadow-md shadow-violet-600/20">{{ __('landing.index.cta2_kartoteka') }}</a>
         @else
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ route('rejestracja', ['plan' => 'free']) }}" class="inline-flex items-center px-8 py-4 bg-violet-600 text-white font-bold rounded-lg hover:bg-violet-700 transition shadow-md shadow-violet-600/20">{{ __('landing.index.cta2_free') }}</a>
-                <a href="{{ route('cennik') }}" class="inline-flex items-center px-8 py-4 border-2 border-slate-700 text-slate-800 font-bold rounded-lg hover:bg-slate-300/80 transition">{{ __('landing.index.cta2_pricing') }}</a>
+                <a href="{{ LandingAlternateUrls::rejestracjaUrl('free') }}" class="inline-flex items-center px-8 py-4 bg-violet-600 text-white font-bold rounded-lg hover:bg-violet-700 transition shadow-md shadow-violet-600/20">{{ __('landing.index.cta2_free') }}</a>
+                <a href="{{ LandingAlternateUrls::cennikUrl() }}" class="inline-flex items-center px-8 py-4 border-2 border-slate-700 text-slate-800 font-bold rounded-lg hover:bg-slate-300/80 transition">{{ __('landing.index.cta2_pricing') }}</a>
             </div>
         @endif
     </div>

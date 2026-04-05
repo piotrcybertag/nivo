@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Przegląd struktury')
+@section('title', __('overview.page_title'))
 
 @section('content')
     <div class="przeglad-page">
         <div class="schemat-wrapper">
             <div id="przeglad-zoom-container" class="przeglad-zoom-container">
                 @if($korzenie->isEmpty())
-                    <p class="schemat-empty">Brak pracowników w bazie.</p>
+                    <p class="schemat-empty">{{ __('overview.empty') }}</p>
                 @else
                     <div class="schemat-root">
                         @foreach($korzenie as $p)
@@ -18,8 +18,8 @@
             </div>
         </div>
         <div class="przeglad-zoom-buttons">
-            <button type="button" class="przeglad-zoom-btn przeglad-zoom-in" title="Powiększ" aria-label="Powiększ">+</button>
-            <button type="button" class="przeglad-zoom-btn przeglad-zoom-out" title="Pomniejsz" aria-label="Pomniejsz">−</button>
+            <button type="button" class="przeglad-zoom-btn przeglad-zoom-in" title="{{ __('overview.zoom_in') }}" aria-label="{{ __('overview.zoom_in') }}">+</button>
+            <button type="button" class="przeglad-zoom-btn przeglad-zoom-out" title="{{ __('overview.zoom_out') }}" aria-label="{{ __('overview.zoom_out') }}">−</button>
         </div>
     </div>
 @endsection

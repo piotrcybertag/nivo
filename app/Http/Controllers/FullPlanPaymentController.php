@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Uzytkownik;
 use App\Services\PracownicyTableService;
+use App\Support\AppUrl;
+use App\Support\LandingLocalePreference;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
@@ -17,8 +20,8 @@ class FullPlanPaymentController extends Controller
     public function start(Request $request): RedirectResponse
     {
         if (! session('uzytkownik_id') || session('login_via_link') || session('uzytkownik_plan') !== 'FREE') {
-            return redirect()->route('upgrade')
-                ->with('error', 'Strona płatności jest dostępna tylko dla użytkowników planu Free zalogowanych hasłem.');
+            return redirect()->route(AppUrl::uiLocale().'.upgrade')
+                ->with('error', __('app.errors.payment_page_free_password'));
         }
 
         $uzytkownik = Uzytkownik::find(session('uzytkownik_id'));
@@ -41,6 +44,12 @@ class FullPlanPaymentController extends Controller
      */
     public function thankYou(Request $request): View
     {
+        $uiLocForView = LandingLocalePreference::resolveLocaleForRequest($request);
+        if (! AppUrl::isUiLocale($uiLocForView)) {
+            $uiLocForView = 'pl';
+        }
+        App::setLocale($uiLocForView);
+
         $secret = config('services.stripe.secret');
         if (! is_string($secret) || $secret === '') {
             return view('platnosc-full-dziekujemy', ['status' => 'brak_klucza']);
@@ -95,6 +104,7 @@ class FullPlanPaymentController extends Controller
             'uzytkownik_plan' => 'FULL',
             'uzytkownik_imie_nazwisko' => $uzytkownik->imie_nazwisko,
             'login_via_link' => false,
+            AppUrl::SESSION_UI_LOCALE => $uiLocForView,
         ]);
 
         if ($uzytkownik->typ !== 'ADM') {

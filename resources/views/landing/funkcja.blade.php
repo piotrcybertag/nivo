@@ -21,11 +21,11 @@
                         {{ __($p.'.cta_home') }}
                     </a>
                     @if(!session('uzytkownik_id'))
-                        <a href="{{ route('rejestracja', ['plan' => 'free']) }}" class="inline-flex items-center px-5 py-2.5 rounded-lg bg-violet-600 text-white font-semibold text-sm hover:bg-violet-700 transition shadow-md shadow-violet-600/25">
+                        <a href="{{ \App\Support\LandingAlternateUrls::rejestracjaUrl('free') }}" class="inline-flex items-center px-5 py-2.5 rounded-lg bg-violet-600 text-white font-semibold text-sm hover:bg-violet-700 transition shadow-md shadow-violet-600/25">
                             {{ __('landing.funkcja_pages.cta_try') }}
                         </a>
                     @else
-                        <a href="{{ route('schemat') }}" class="inline-flex items-center px-5 py-2.5 rounded-lg bg-violet-600 text-white font-semibold text-sm hover:bg-violet-700 transition shadow-md shadow-violet-600/25">
+                        <a href="{{ \App\Support\LandingAlternateUrls::appSchematUrl() }}" class="inline-flex items-center px-5 py-2.5 rounded-lg bg-violet-600 text-white font-semibold text-sm hover:bg-violet-700 transition shadow-md shadow-violet-600/25">
                             {{ __('landing.nav.back_app') }}
                         </a>
                     @endif

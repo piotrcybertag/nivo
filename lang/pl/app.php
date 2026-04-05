@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'nav' => [
+        'aria_menu' => 'Menu aplikacji',
+        'aria_home' => 'Nivo – strona główna',
+        'brand' => 'Nivo',
+        'pricing' => 'Cennik',
+        'login' => 'Zaloguj',
+        'logout' => 'Wyloguj (:name)',
+        'employees' => 'Pracownicy',
+        'org_chart' => 'Schemat',
+        'overview' => 'Przegląd',
+        'manual' => 'Instrukcja',
+        'settings' => 'Ustawienia',
+        'users' => 'Użytkownicy',
+        'version_title' => 'Wersja aplikacji',
+    ],
+    'schemat' => [
+        'page_title' => 'Schemat organizacyjny',
+        'search_label' => 'Szukaj pracownika (nazwisko lub imię)',
+        'search_placeholder' => 'np. Kowal',
+        'search_button' => 'Szukaj',
+        'no_results' => 'Brak pracowników pasujących do „:term”.',
+        'empty_org' => 'Brak pracowników w bazie. Dodaj pracowników w kartotece — pracownik bez szefa będzie początkiem struktury.',
+        'headcount' => ':count pracowników',
+        'matrix_suffix' => ' (M)',
+        'group_suffix' => ' · Grupa',
+    ],
+    'errors' => [
+        'upgrade_page_free_only' => 'Strona tylko dla użytkowników planu Free.',
+        'upgrade_invalid_request' => 'Nieprawidłowe żądanie.',
+        'upgrade_plan_changed' => 'Twój plan został zmieniony na Full. Możesz teraz dodawać nieograniczoną liczbę pracowników.',
+        'instrukcja_password_only' => 'Instrukcja jest dostępna tylko po zalogowaniu hasłem.',
+        'page_unavailable' => 'Strona niedostępna.',
+        'user_not_found' => 'Nie znaleziono użytkownika.',
+        'link_generated' => 'Link wygenerowany.',
+        'adm_only' => 'Dostęp tylko dla administratora (ADM).',
+        'payment_page_free_password' => 'Strona płatności jest dostępna tylko dla użytkowników planu Free zalogowanych hasłem.',
+    ],
+];

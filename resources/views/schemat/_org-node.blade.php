@@ -1,5 +1,5 @@
 <div class="org-node {{ isset($czyMatrix) && $czyMatrix ? 'org-node--matrix' : '' }}">
-    @php $urlSchemat = route('schemat', ['pracownik' => $pracownik->id]); @endphp
+    @php $urlSchemat = \App\Support\AppUrl::route('schemat', ['pracownik' => $pracownik->id]); @endphp
     @php
         $liczbaPodwladnych = isset($pracownik->total_podwladni_count)
             ? $pracownik->total_podwladni_count
@@ -7,7 +7,7 @@
                 + ($pracownik->relationLoaded('podwladniMatrix') ? $pracownik->podwladniMatrix->count() : ($pracownik->podwladni_matrix_count ?? 0)));
     @endphp
     <a href="{{ $urlSchemat }}" class="schemat-box org-box org-box--clickable {{ isset($czyMatrix) && $czyMatrix ? 'org-box--matrix' : '' }} {{ $pracownik->grupa ? 'org-box--grupa' : '' }}">
-        <div class="schemat-name">{{ $pracownik->imie }} {{ $pracownik->nazwisko }}{{ isset($czyMatrix) && $czyMatrix ? ' (M)' : '' }}{{ $pracownik->grupa ? ' · Grupa' : '' }}</div>
+        <div class="schemat-name">{{ $pracownik->imie }} {{ $pracownik->nazwisko }}{{ isset($czyMatrix) && $czyMatrix ? __('app.schemat.matrix_suffix') : '' }}{{ $pracownik->grupa ? __('app.schemat.group_suffix') : '' }}</div>
         <div class="schemat-stanowisko">{{ $pracownik->stanowisko }}</div>
         @if($liczbaPodwladnych > 0)
             <div class="schemat-podwladni-count">{{ $pracownik->grupa ? '0' : '1' }}+({{ $liczbaPodwladnych }})</div>

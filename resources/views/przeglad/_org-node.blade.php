@@ -1,6 +1,6 @@
 <div class="org-node {{ isset($czyMatrix) && $czyMatrix ? 'org-node--matrix' : '' }}">
     <div class="schemat-box org-box {{ isset($czyMatrix) && $czyMatrix ? 'org-box--matrix' : '' }} {{ $pracownik->grupa ? 'org-box--grupa' : '' }}">
-        <div class="schemat-name">{{ $pracownik->imie }} {{ $pracownik->nazwisko }}{{ isset($czyMatrix) && $czyMatrix ? ' (M)' : '' }}{{ $pracownik->grupa ? ' · Grupa' : '' }}</div>
+        <div class="schemat-name">{{ $pracownik->imie }} {{ $pracownik->nazwisko }}{{ isset($czyMatrix) && $czyMatrix ? __('overview.matrix_suffix') : '' }}{{ $pracownik->grupa ? __('overview.group_suffix') : '' }}</div>
         <div class="schemat-stanowisko">{{ $pracownik->stanowisko }}</div>
     </div>
     @php

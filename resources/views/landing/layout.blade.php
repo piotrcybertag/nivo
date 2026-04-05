@@ -15,15 +15,27 @@
     }
     $seoUrl = url()->current();
     $seoImage = $baseUrl.'/storage/nivo.png';
-    $ogLocale = app()->getLocale() === 'en' ? 'en_US' : 'pl_PL';
-    $ogLocaleAlternate = app()->getLocale() === 'en' ? 'pl_PL' : 'en_US';
+    $ogLocale = match (app()->getLocale()) {
+        'en' => 'en_US',
+        'es' => 'es_ES',
+        'fr' => 'fr_FR',
+        'de' => 'de_DE',
+        default => 'pl_PL',
+    };
+    $ogLocaleAlternates = collect(['pl_PL', 'en_US', 'es_ES', 'fr_FR', 'de_DE'])->reject(fn ($v) => $v === $ogLocale)->values()->all();
     $jsonLd = [
         '@context' => 'https://schema.org',
         '@type' => 'WebSite',
         'name' => __('landing.seo.og_site_name'),
         'url' => $baseUrl,
         'description' => $seoDesc,
-        'inLanguage' => [app()->getLocale() === 'en' ? 'en-US' : 'pl-PL'],
+        'inLanguage' => [match (app()->getLocale()) {
+            'en' => 'en-US',
+            'es' => 'es-ES',
+            'fr' => 'fr-FR',
+            'de' => 'de-DE',
+            default => 'pl-PL',
+        }],
         'publisher' => [
             '@type' => 'Organization',
             'name' => __('landing.seo.og_site_name'),
@@ -41,7 +53,9 @@
     <meta property="og:description" content="{{ $seoDesc }}">
     <meta property="og:url" content="{{ $seoUrl }}">
     <meta property="og:locale" content="{{ $ogLocale }}">
-    <meta property="og:locale:alternate" content="{{ $ogLocaleAlternate }}">
+    @foreach($ogLocaleAlternates as $ogAlt)
+    <meta property="og:locale:alternate" content="{{ $ogAlt }}">
+    @endforeach
     <meta property="og:image" content="{{ $seoImage }}">
     <meta property="og:image:alt" content="{{ __('landing.seo.og_image_alt') }}">
     <meta name="twitter:card" content="summary_large_image">
@@ -54,6 +68,15 @@
 @endif
 @if(!empty($landingAlternateUrls['en']))
     <link rel="alternate" hreflang="en" href="{{ $landingAlternateUrls['en'] }}">
+@endif
+@if(!empty($landingAlternateUrls['es']))
+    <link rel="alternate" hreflang="es" href="{{ $landingAlternateUrls['es'] }}">
+@endif
+@if(!empty($landingAlternateUrls['fr']))
+    <link rel="alternate" hreflang="fr" href="{{ $landingAlternateUrls['fr'] }}">
+@endif
+@if(!empty($landingAlternateUrls['de']))
+    <link rel="alternate" hreflang="de" href="{{ $landingAlternateUrls['de'] }}">
 @endif
 @if(!empty($landingAlternateUrls['pl']))
     <link rel="alternate" hreflang="x-default" href="{{ $landingAlternateUrls['pl'] }}">
@@ -119,9 +142,9 @@
                                         <h4 class="font-bold text-gray-900 mb-2">{{ __('landing.mega.sidebar_title') }}</h4>
                                         <p class="text-sm text-gray-800 font-medium mb-4">{{ __('landing.mega.sidebar_text') }}</p>
                                         @if(session('uzytkownik_id'))
-                                            <a href="{{ route('schemat') }}" class="inline-block w-full text-center py-3 px-4 border-2 border-gray-800 rounded-lg font-medium hover:bg-gray-50 transition">{{ __('landing.nav.back_app') }}</a>
+                                            <a href="{{ LandingAlternateUrls::appSchematUrl() }}" class="inline-block w-full text-center py-3 px-4 border-2 border-gray-800 rounded-lg font-medium hover:bg-gray-50 transition">{{ __('landing.nav.back_app') }}</a>
                                         @else
-                                            <a href="{{ route('rejestracja', ['plan' => 'free']) }}" class="inline-block w-full text-center py-3 px-4 border-2 border-gray-800 rounded-lg font-medium hover:bg-gray-50 transition">{{ __('landing.mega.sidebar_cta_guest') }}</a>
+                                            <a href="{{ LandingAlternateUrls::rejestracjaUrl('free') }}" class="inline-block w-full text-center py-3 px-4 border-2 border-gray-800 rounded-lg font-medium hover:bg-gray-50 transition">{{ __('landing.mega.sidebar_cta_guest') }}</a>
                                         @endif
                                     </div>
                                 </div>
@@ -147,7 +170,7 @@
                                                 <p class="text-xs text-gray-600 font-medium mb-2">{{ __('landing.pricing.free_b1') }}</p>
                                                 <p class="text-xs text-gray-600 font-medium mb-4">{{ __('landing.pricing.free_b2') }}</p>
                                                 <p class="text-lg font-bold text-gray-900 mb-auto">{{ __('landing.pricing.free_price') }}</p>
-                                                <a href="{{ route('rejestracja', ['plan' => 'free']) }}" class="inline-block w-full text-center py-2.5 px-4 mt-4 border-2 border-teal-500 text-teal-800 font-semibold rounded-lg hover:bg-teal-50 transition">{{ __('landing.pricing.free_cta') }}</a>
+                                                <a href="{{ LandingAlternateUrls::rejestracjaUrl('free') }}" class="inline-block w-full text-center py-2.5 px-4 mt-4 border-2 border-teal-500 text-teal-800 font-semibold rounded-lg hover:bg-teal-50 transition">{{ __('landing.pricing.free_cta') }}</a>
                                             </div>
                                             <div class="p-5 rounded-xl border-2 border-violet-300 bg-gradient-to-br from-violet-50/80 to-indigo-50/40 hover:border-violet-500 transition flex flex-col shadow-sm">
                                                 <div class="w-10 h-10 mb-3 flex items-center justify-center rounded-lg bg-gradient-to-br from-violet-400 to-indigo-600 shadow">
@@ -159,14 +182,14 @@
                                                 <p class="text-xs text-gray-600 font-medium mb-4">{{ __('landing.pricing.full_b2') }}</p>
                                                 <p class="text-lg font-bold text-gray-900 mb-1">{{ __('landing.pricing.full_price') }}</p>
                                                 <p class="text-sm font-medium text-gray-600 mb-auto">{{ __('landing.pricing.full_yearly') }}</p>
-                                                <a href="{{ route('rejestracja', ['plan' => 'full']) }}" class="inline-block w-full text-center py-2.5 px-4 mt-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-violet-700 hover:to-indigo-700 transition">{{ __('landing.pricing.full_cta') }}</a>
+                                                <a href="{{ LandingAlternateUrls::rejestracjaUrl('full') }}" class="inline-block w-full text-center py-2.5 px-4 mt-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-violet-700 hover:to-indigo-700 transition">{{ __('landing.pricing.full_cta') }}</a>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="w-72 flex-shrink-0 bg-gradient-to-br from-slate-50 via-violet-50 to-teal-50 rounded-xl p-6 ring-1 ring-violet-100">
                                         <h4 class="font-bold text-gray-900 mb-2">{{ __('landing.pricing.compare_title') }}</h4>
                                         <p class="text-sm text-gray-800 font-medium mb-4">{{ __('landing.pricing.compare_text') }}</p>
-                                        <a href="{{ route('cennik') }}" class="inline-block w-full text-center py-3 px-4 border-2 border-gray-800 rounded-lg font-semibold hover:bg-gray-100 transition">{{ __('landing.pricing.compare_cta') }}</a>
+                                        <a href="{{ LandingAlternateUrls::cennikUrl() }}" class="inline-block w-full text-center py-3 px-4 border-2 border-gray-800 rounded-lg font-semibold hover:bg-gray-100 transition">{{ __('landing.pricing.compare_cta') }}</a>
                                     </div>
                                 </div>
                             </div>
@@ -179,17 +202,17 @@
                         @include('landing.partials.lang-switcher', ['compact' => false])
                     </div>
                     @if(session('uzytkownik_id'))
-                        <a href="{{ route('schemat') }}" class="inline-flex items-center px-4 sm:px-5 py-2.5 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition shadow-sm shadow-violet-600/20">{{ __('landing.nav.back_app') }}</a>
+                        <a href="{{ LandingAlternateUrls::appSchematUrl() }}" class="inline-flex items-center px-4 sm:px-5 py-2.5 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition shadow-sm shadow-violet-600/20">{{ __('landing.nav.back_app') }}</a>
                     @else
-                        <a href="{{ route('login') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700 hidden sm:inline">{{ __('landing.nav.login') }}</a>
-                        <a href="{{ route('rejestracja', ['plan' => 'free']) }}" class="inline-flex items-center px-4 sm:px-5 py-2.5 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition shadow-sm shadow-violet-600/20">{{ __('landing.nav.register') }}</a>
+                        <a href="{{ LandingAlternateUrls::loginUrl() }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700 hidden sm:inline">{{ __('landing.nav.login') }}</a>
+                        <a href="{{ LandingAlternateUrls::rejestracjaUrl('free') }}" class="inline-flex items-center px-4 sm:px-5 py-2.5 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition shadow-sm shadow-violet-600/20">{{ __('landing.nav.register') }}</a>
                     @endif
                 </div>
             </div>
         </nav>
         <div class="md:hidden border-t border-gray-100 bg-white px-4 py-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-semibold text-gray-800">
             <a href="{{ LandingAlternateUrls::featureAnchorUrl('funkcje') }}" class="hover:text-violet-700">{{ __('landing.nav.features') }}</a>
-            <a href="{{ route('cennik') }}" class="hover:text-violet-700">{{ __('landing.nav.pricing') }}</a>
+            <a href="{{ LandingAlternateUrls::cennikUrl() }}" class="hover:text-violet-700">{{ __('landing.nav.pricing') }}</a>
             @include('landing.partials.lang-switcher', ['compact' => true])
         </div>
     </header>
@@ -289,10 +312,16 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-6">
-                            <div class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 border border-white/30 rounded text-sm text-white/90" role="navigation" aria-label="Language">
+                            <div class="flex flex-wrap items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 border border-white/30 rounded text-sm text-white/90" role="navigation" aria-label="Language">
                                 <a href="{{ route('landing.set_locale', ['locale' => 'pl', 'next' => $landingLocaleSwitch['pl_path']]) }}" lang="pl" class="px-2 py-0.5 rounded {{ ($landingLocale ?? 'pl') === 'pl' ? 'bg-white/20 text-white font-semibold' : 'text-white/75 hover:text-white' }}">{{ __('landing.footer.lang_pl') }}</a>
                                 <span class="text-white/40" aria-hidden="true">|</span>
                                 <a href="{{ route('landing.set_locale', ['locale' => 'en', 'next' => $landingLocaleSwitch['en_path']]) }}" lang="en" class="px-2 py-0.5 rounded {{ ($landingLocale ?? 'pl') === 'en' ? 'bg-white/20 text-white font-semibold' : 'text-white/75 hover:text-white' }}">{{ __('landing.footer.lang_en') }}</a>
+                                <span class="text-white/40" aria-hidden="true">|</span>
+                                <a href="{{ route('landing.set_locale', ['locale' => 'es', 'next' => $landingLocaleSwitch['es_path']]) }}" lang="es" class="px-2 py-0.5 rounded {{ ($landingLocale ?? 'pl') === 'es' ? 'bg-white/20 text-white font-semibold' : 'text-white/75 hover:text-white' }}">{{ __('landing.footer.lang_es') }}</a>
+                                <span class="text-white/40" aria-hidden="true">|</span>
+                                <a href="{{ route('landing.set_locale', ['locale' => 'fr', 'next' => $landingLocaleSwitch['fr_path']]) }}" lang="fr" class="px-2 py-0.5 rounded {{ ($landingLocale ?? 'pl') === 'fr' ? 'bg-white/20 text-white font-semibold' : 'text-white/75 hover:text-white' }}">{{ __('landing.footer.lang_fr') }}</a>
+                                <span class="text-white/40" aria-hidden="true">|</span>
+                                <a href="{{ route('landing.set_locale', ['locale' => 'de', 'next' => $landingLocaleSwitch['de_path']]) }}" lang="de" class="px-2 py-0.5 rounded {{ ($landingLocale ?? 'pl') === 'de' ? 'bg-white/20 text-white font-semibold' : 'text-white/75 hover:text-white' }}">{{ __('landing.footer.lang_de') }}</a>
                             </div>
                             <a href="{{ LandingAlternateUrls::policyUrl() }}" class="text-sm text-white/80 hover:text-white">{{ __('landing.footer.privacy') }}</a>
                             <a href="{{ LandingAlternateUrls::termsUrl() }}" class="text-sm text-white/80 hover:text-white">{{ __('landing.footer.terms') }}</a>

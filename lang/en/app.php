@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'nav' => [
+        'aria_menu' => 'Application menu',
+        'aria_home' => 'Nivo – home',
+        'brand' => 'Nivo',
+        'pricing' => 'Pricing',
+        'login' => 'Log in',
+        'logout' => 'Log out (:name)',
+        'employees' => 'Employees',
+        'org_chart' => 'Org chart',
+        'overview' => 'Overview',
+        'manual' => 'User guide',
+        'settings' => 'Settings',
+        'users' => 'Users',
+        'version_title' => 'App version',
+    ],
+    'schemat' => [
+        'page_title' => 'Organizational chart',
+        'search_label' => 'Find employee (last or first name)',
+        'search_placeholder' => 'e.g. Smith',
+        'search_button' => 'Search',
+        'no_results' => 'No employees matching “:term”.',
+        'empty_org' => 'No employees yet. Add them from the Employees directory — someone without a manager becomes the root of the chart.',
+        'headcount' => ':count employees',
+        'matrix_suffix' => ' (M)',
+        'group_suffix' => ' · Group',
+    ],
+    'errors' => [
+        'upgrade_page_free_only' => 'This page is only for users on the Free plan.',
+        'upgrade_invalid_request' => 'Invalid request.',
+        'upgrade_plan_changed' => 'Your plan has been upgraded to Full. You can now add an unlimited number of employees.',
+        'instrukcja_password_only' => 'The manual is only available after logging in with a password.',
+        'page_unavailable' => 'Page unavailable.',
+        'user_not_found' => 'User not found.',
+        'link_generated' => 'Link generated.',
+        'adm_only' => 'Access is restricted to administrator (ADM) accounts.',
+        'payment_page_free_password' => 'The payment page is only available to Free plan users logged in with a password.',
+    ],
+];

@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'nav' => [
+        'aria_menu' => 'Anwendungsmenü',
+        'aria_home' => 'Nivo – Start',
+        'brand' => 'Nivo',
+        'pricing' => 'Preise',
+        'login' => 'Anmelden',
+        'logout' => 'Abmelden (:name)',
+        'employees' => 'Mitarbeitende',
+        'org_chart' => 'Organigramm',
+        'overview' => 'Übersicht',
+        'manual' => 'Bedienungsanleitung',
+        'settings' => 'Einstellungen',
+        'users' => 'Benutzer',
+        'version_title' => 'App-Version',
+    ],
+    'schemat' => [
+        'page_title' => 'Organigramm',
+        'search_label' => 'Mitarbeitende suchen (Nach- oder Vorname)',
+        'search_placeholder' => 'z. B. Schmidt',
+        'search_button' => 'Suchen',
+        'no_results' => 'Keine Mitarbeitenden für „:term“.',
+        'empty_org' => 'Noch keine Mitarbeitenden. Fügen Sie sie im Mitarbeiterverzeichnis hinzu — ohne Vorgesetzte werden sie zur Wurzel des Diagramms.',
+        'headcount' => ':count Mitarbeitende',
+        'matrix_suffix' => ' (M)',
+        'group_suffix' => ' · Gruppe',
+    ],
+    'errors' => [
+        'upgrade_page_free_only' => 'Diese Seite ist nur für Nutzer des Free-Tarifs.',
+        'upgrade_invalid_request' => 'Ungültige Anfrage.',
+        'upgrade_plan_changed' => 'Ihr Tarif wurde auf Full geändert. Sie können jetzt unbegrenzt viele Mitarbeitende anlegen.',
+        'instrukcja_password_only' => 'Die Anleitung ist nur nach Anmeldung mit Passwort verfügbar.',
+        'page_unavailable' => 'Seite nicht verfügbar.',
+        'user_not_found' => 'Benutzer nicht gefunden.',
+        'link_generated' => 'Link erstellt.',
+        'adm_only' => 'Zugriff nur für Administratorkonten (ADM).',
+        'payment_page_free_password' => 'Die Zahlungsseite ist nur für Free-Nutzer mit Passwort-Anmeldung verfügbar.',
+    ],
+];

@@ -13,8 +13,11 @@ class LandingLayoutComposer
         $view->with('landingAlternateUrls', $alts);
         $view->with('landingLocale', app()->getLocale());
         $view->with('landingLocaleSwitch', [
-            'pl_path' => self::pathOnly($alts['pl'] ?? route('home')),
+            'pl_path' => self::pathOnly($alts['pl'] ?? route('pl.landing')),
             'en_path' => self::pathOnly($alts['en'] ?? route('en.landing')),
+            'es_path' => self::pathOnly($alts['es'] ?? route('es.landing')),
+            'fr_path' => self::pathOnly($alts['fr'] ?? route('fr.landing')),
+            'de_path' => self::pathOnly($alts['de'] ?? route('de.landing')),
         ]);
     }
 

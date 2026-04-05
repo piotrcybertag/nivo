@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'nav' => [
+        'aria_menu' => 'Menú de la aplicación',
+        'aria_home' => 'Nivo — inicio',
+        'brand' => 'Nivo',
+        'pricing' => 'Precios',
+        'login' => 'Iniciar sesión',
+        'logout' => 'Cerrar sesión (:name)',
+        'employees' => 'Empleados',
+        'org_chart' => 'Organigrama',
+        'overview' => 'Vista general',
+        'manual' => 'Guía de uso',
+        'settings' => 'Ajustes',
+        'users' => 'Usuarios',
+        'version_title' => 'Versión de la app',
+    ],
+    'schemat' => [
+        'page_title' => 'Organigrama',
+        'search_label' => 'Buscar empleado (apellido o nombre)',
+        'search_placeholder' => 'p. ej. García',
+        'search_button' => 'Buscar',
+        'no_results' => 'No hay empleados que coincidan con «:term».',
+        'empty_org' => 'Aún no hay empleados. Añádalos desde el directorio — quien no tenga responsable será la raíz del organigrama.',
+        'headcount' => ':count empleados',
+        'matrix_suffix' => ' (M)',
+        'group_suffix' => ' · Grupo',
+    ],
+    'errors' => [
+        'upgrade_page_free_only' => 'Esta página solo es para usuarios del plan gratuito.',
+        'upgrade_invalid_request' => 'Solicitud no válida.',
+        'upgrade_plan_changed' => 'Su plan se ha actualizado a Full. Ya puede añadir empleados sin límite.',
+        'instrukcja_password_only' => 'La guía solo está disponible tras iniciar sesión con contraseña.',
+        'page_unavailable' => 'Página no disponible.',
+        'user_not_found' => 'Usuario no encontrado.',
+        'link_generated' => 'Enlace generado.',
+        'adm_only' => 'Acceso restringido a cuentas de administrador (ADM).',
+        'payment_page_free_password' => 'El pago solo está disponible para usuarios del plan gratuito con sesión por contraseña.',
+    ],
+];

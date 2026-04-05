@@ -13,6 +13,12 @@ class LandingContactController extends Controller
     {
         if ($request->routeIs('en.landing.contact')) {
             App::setLocale('en');
+        } elseif ($request->routeIs('es.landing.contact')) {
+            App::setLocale('es');
+        } elseif ($request->routeIs('fr.landing.contact')) {
+            App::setLocale('fr');
+        } elseif ($request->routeIs('de.landing.contact')) {
+            App::setLocale('de');
         } else {
             App::setLocale('pl');
         }

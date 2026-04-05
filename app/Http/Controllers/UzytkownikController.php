@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Uzytkownik;
+use App\Support\AppUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,7 @@ class UzytkownikController extends Controller
     public function index(): View
     {
         $uzytkownicy = Uzytkownik::orderBy('imie_nazwisko')->paginate(15);
+
         return view('uzytkownicy.index', compact('uzytkownicy'));
     }
 
@@ -36,7 +38,8 @@ class UzytkownikController extends Controller
         $validated['password'] = Hash::make($validated['password']);
         $validated['plan'] = $validated['plan'] ?? null;
         Uzytkownik::create($validated);
-        return redirect()->route('kartoteki.uzytkownicy.index')->with('success', 'Użytkownik został dodany.');
+
+        return redirect()->to(AppUrl::route('kartoteki.uzytkownicy.index'))->with('success', __('users.flash.added'));
     }
 
     public function show(Uzytkownik $uzytkownik): View
@@ -56,11 +59,11 @@ class UzytkownikController extends Controller
             $token = Str::random(15);
         }
         $uzytkownik->update(['login_link_token' => $token]);
-        $link = url('/' . $token);
+        $link = url('/'.$token);
 
         return redirect()
-            ->route('kartoteki.uzytkownicy.edit', $uzytkownik)
-            ->with('success', 'Link wygenerowany.')
+            ->to(AppUrl::route('kartoteki.uzytkownicy.edit', ['uzytkownik' => $uzytkownik]))
+            ->with('success', __('users.flash.link_generated'))
             ->with('generated_login_link', $link);
     }
 
@@ -68,26 +71,28 @@ class UzytkownikController extends Controller
     {
         $request->merge(['plan' => $request->input('plan') ?: null]);
         $validated = $request->validate([
-            'email' => 'required|email|unique:uzytkownicy,email,' . $uzytkownik->id,
+            'email' => 'required|email|unique:uzytkownicy,email,'.$uzytkownik->id,
             'imie_nazwisko' => 'required|string|max:255',
             'typ' => 'required|string|max:255',
             'plan' => 'nullable|in:FREE,FULL',
             'password' => 'nullable|string|min:6|confirmed',
         ]);
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
         }
-        $validated['plan'] = !empty($validated['plan']) ? $validated['plan'] : null;
+        $validated['plan'] = ! empty($validated['plan']) ? $validated['plan'] : null;
         $uzytkownik->update($validated);
-        return redirect()->route('kartoteki.uzytkownicy.index')->with('success', 'Użytkownik został zaktualizowany.');
+
+        return redirect()->to(AppUrl::route('kartoteki.uzytkownicy.index'))->with('success', __('users.flash.updated'));
     }
 
     public function destroy(Uzytkownik $uzytkownik): RedirectResponse
     {
         $uzytkownik->delete();
-        return redirect()->route('kartoteki.uzytkownicy.index')->with('success', 'Użytkownik został usunięty.');
+
+        return redirect()->to(AppUrl::route('kartoteki.uzytkownicy.index'))->with('success', __('users.flash.deleted'));
     }
 }

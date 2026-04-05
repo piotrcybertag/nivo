@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'nav' => [
+        'aria_menu' => 'Menu de l\'application',
+        'aria_home' => 'Nivo — accueil',
+        'brand' => 'Nivo',
+        'pricing' => 'Tarifs',
+        'login' => 'Connexion',
+        'logout' => 'Déconnexion (:name)',
+        'employees' => 'Employés',
+        'org_chart' => 'Organigramme',
+        'overview' => 'Vue d\'ensemble',
+        'manual' => 'Mode d\'emploi',
+        'settings' => 'Paramètres',
+        'users' => 'Utilisateurs',
+        'version_title' => 'Version de l\'application',
+    ],
+    'schemat' => [
+        'page_title' => 'Organigramme',
+        'search_label' => 'Rechercher un employé (nom ou prénom)',
+        'search_placeholder' => 'ex. Dupont',
+        'search_button' => 'Rechercher',
+        'no_results' => 'Aucun employé correspondant à « :term ».',
+        'empty_org' => 'Pas encore d\'employés. Ajoutez-les depuis l\'annuaire — sans responsable, une personne devient la racine de l\'organigramme.',
+        'headcount' => ':count employés',
+        'matrix_suffix' => ' (M)',
+        'group_suffix' => ' · Groupe',
+    ],
+    'errors' => [
+        'upgrade_page_free_only' => 'Cette page est réservée aux utilisateurs du plan gratuit.',
+        'upgrade_invalid_request' => 'Requête non valide.',
+        'upgrade_plan_changed' => 'Votre plan a été mis à niveau vers Full. Vous pouvez désormais ajouter un nombre illimité d\'employés.',
+        'instrukcja_password_only' => 'Le mode d\'emploi n\'est disponible qu\'après connexion avec un mot de passe.',
+        'page_unavailable' => 'Page indisponible.',
+        'user_not_found' => 'Utilisateur introuvable.',
+        'link_generated' => 'Lien généré.',
+        'adm_only' => 'Accès réservé aux comptes administrateur (ADM).',
+        'payment_page_free_password' => 'Le paiement n\'est disponible que pour les utilisateurs du plan gratuit connectés avec un mot de passe.',
+    ],
+];
