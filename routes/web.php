@@ -171,28 +171,55 @@ $schematHandler = static function (): View|RedirectResponse {
     return view('schemat', compact('korzenie', 'nadSzefowie', 'szukaj', 'wynikiWyszukiwania', 'totalPracownikow'));
 };
 
-$przegladHandler = static function (): View {
-    $loadTree = function ($p, $depth = 25) use (&$loadTree) {
-        if ($depth <= 0) {
-            return;
-        }
-        $p->load([
-            'podwladni' => fn ($q) => $q->orderBy('nazwisko')->orderBy('imie'),
-            'podwladniMatrix' => fn ($q) => $q->orderBy('nazwisko')->orderBy('imie'),
-        ]);
-        foreach ($p->podwladni->concat($p->podwladniMatrix) as $pod) {
-            $loadTree($pod, $depth - 1);
-        }
-    };
-    $korzenie = Pracownik::whereNull('id_szefa')
+$przegladHandler = static function (): View|RedirectResponse {
+    $pracownicyDoWyboru = Pracownik::query()
         ->orderBy('nazwisko')
         ->orderBy('imie')
-        ->get();
-    foreach ($korzenie as $k) {
-        $loadTree($k);
+        ->get(['id', 'imie', 'nazwisko', 'stanowisko', 'grupa']);
+
+    if ($pracownicyDoWyboru->isEmpty()) {
+        return view('przeglad', [
+            'wyborKorzenia' => false,
+            'korzen' => null,
+            'pracownicyDoWyboru' => $pracownicyDoWyboru,
+        ]);
     }
 
-    return view('przeglad', compact('korzenie'));
+    $rawKorzen = request()->query('korzen');
+    if ($rawKorzen === null || $rawKorzen === '') {
+        return view('przeglad', [
+            'wyborKorzenia' => true,
+            'korzen' => null,
+            'pracownicyDoWyboru' => $pracownicyDoWyboru,
+        ]);
+    }
+
+    $korzenId = is_numeric($rawKorzen) ? (int) $rawKorzen : 0;
+    $korzen = Pracownik::query()
+        ->whereKey($korzenId)
+        ->first();
+
+    if ($korzen === null) {
+        return redirect()->to(AppUrl::route('przeglad'))
+            ->with('error', __('overview.invalid_root'));
+    }
+
+    $korzen->load([
+        'podwladni' => fn ($q) => $q->orderBy('nazwisko')->orderBy('imie')->with([
+            'podwladni' => fn ($q2) => $q2->orderBy('nazwisko')->orderBy('imie'),
+            'podwladniMatrix' => fn ($q2) => $q2->orderBy('nazwisko')->orderBy('imie'),
+        ]),
+        'podwladniMatrix' => fn ($q) => $q->orderBy('nazwisko')->orderBy('imie')->with([
+            'podwladni' => fn ($q2) => $q2->orderBy('nazwisko')->orderBy('imie'),
+            'podwladniMatrix' => fn ($q2) => $q2->orderBy('nazwisko')->orderBy('imie'),
+        ]),
+    ]);
+
+    return view('przeglad', [
+        'wyborKorzenia' => false,
+        'korzen' => $korzen,
+        'pracownicyDoWyboru' => $pracownicyDoWyboru,
+    ]);
 };
 
 $registerLocaleAppRoutes = static function (string $loc) use ($schematHandler, $przegladHandler): void {

@@ -1,3 +1,7 @@
+@php
+    /** @var int $przegladPoziom 0 = wybrany szef, 1 = bezpośredni podwładni, 2 = tylko karty (bez dzieci) */
+    $poziom = $przegladPoziom;
+@endphp
 <div class="org-node {{ isset($czyMatrix) && $czyMatrix ? 'org-node--matrix' : '' }}">
     <div class="schemat-box org-box {{ isset($czyMatrix) && $czyMatrix ? 'org-box--matrix' : '' }} {{ $pracownik->grupa ? 'org-box--grupa' : '' }}">
         <div class="schemat-name">{{ $pracownik->imie }} {{ $pracownik->nazwisko }}{{ isset($czyMatrix) && $czyMatrix ? __('overview.matrix_suffix') : '' }}{{ $pracownik->grupa ? __('overview.group_suffix') : '' }}</div>
@@ -7,34 +11,47 @@
         $podwladniLinia = $pracownik->relationLoaded('podwladni') ? $pracownik->podwladni : collect();
         $podwladniMat = $pracownik->relationLoaded('podwladniMatrix') ? $pracownik->podwladniMatrix : collect();
         $wszyscyPodwladni = $podwladniLinia->concat($podwladniMat);
-        $maPodwladnychDoRysowania = $wszyscyPodwladni->isNotEmpty();
+        $maPodwladnychDoRysowania = $wszyscyPodwladni->isNotEmpty() && $poziom < 2;
     @endphp
     @if($maPodwladnychDoRysowania)
-        @php
-            $n = $wszyscyPodwladni->count();
-            $wszyscyBezPodwladnych = $wszyscyPodwladni->every(function($p) {
-                $pl = $p->relationLoaded('podwladni') ? $p->podwladni : collect();
-                $pm = $p->relationLoaded('podwladniMatrix') ? $p->podwladniMatrix : collect();
-                return $pl->isEmpty() && $pm->isEmpty();
-            });
-            $ostatniPoziom = $wszyscyBezPodwladnych;
-            $cols = $ostatniPoziom ? 1 : ($n > 4 ? 4 : $n);
-            $multiRow = !$ostatniPoziom && $n > 4;
-        @endphp
-        <div class="org-connector-wrap">
-            <svg class="org-lines-svg" aria-hidden="true"></svg>
-            <div class="org-children">
-                <div class="org-branch {{ $multiRow ? 'org-branch--multi-row' : '' }} {{ $ostatniPoziom ? 'org-branch--vertical' : '' }}" style="--child-count: {{ $cols }}; grid-template-columns: repeat({{ $cols }}, 1fr);">
-                    <div class="org-branch-children">
-                        @foreach($pracownik->podwladni as $pod)
-                            @include('przeglad._org-node', ['pracownik' => $pod, 'isChild' => true, 'czyMatrix' => false])
-                        @endforeach
-                        @foreach($pracownik->podwladniMatrix as $pod)
-                            @include('przeglad._org-node', ['pracownik' => $pod, 'isChild' => true, 'czyMatrix' => true])
-                        @endforeach
+        @if($poziom === 0)
+            @php
+                $n = $wszyscyPodwladni->count();
+                $cols = $n > 4 ? 4 : $n;
+                $multiRow = $n > 4;
+            @endphp
+            <div class="org-connector-wrap">
+                <svg class="org-lines-svg" aria-hidden="true"></svg>
+                <div class="org-children">
+                    <div class="org-branch {{ $multiRow ? 'org-branch--multi-row' : '' }}" style="--child-count: {{ $cols }}; grid-template-columns: repeat({{ $cols }}, 1fr);">
+                        <div class="org-branch-children">
+                            @foreach($pracownik->podwladni as $pod)
+                                @include('przeglad._org-node', ['pracownik' => $pod, 'isChild' => true, 'czyMatrix' => false, 'przegladPoziom' => 1])
+                            @endforeach
+                            @foreach($pracownik->podwladniMatrix as $pod)
+                                @include('przeglad._org-node', ['pracownik' => $pod, 'isChild' => true, 'czyMatrix' => true, 'przegladPoziom' => 1])
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @else
+            {{-- Poziom 1: podwładni w kolumnie pod swoim szefem --}}
+            <div class="org-connector-wrap">
+                <svg class="org-lines-svg" aria-hidden="true"></svg>
+                <div class="org-children">
+                    <div class="org-branch org-branch--vertical" style="--child-count: 1; grid-template-columns: repeat(1, 1fr);">
+                        <div class="org-branch-children">
+                            @foreach($pracownik->podwladni as $pod)
+                                @include('przeglad._org-node', ['pracownik' => $pod, 'isChild' => true, 'czyMatrix' => false, 'przegladPoziom' => 2])
+                            @endforeach
+                            @foreach($pracownik->podwladniMatrix as $pod)
+                                @include('przeglad._org-node', ['pracownik' => $pod, 'isChild' => true, 'czyMatrix' => true, 'przegladPoziom' => 2])
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
     @endif
 </div>
