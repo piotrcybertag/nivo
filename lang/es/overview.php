@@ -15,4 +15,6 @@ return [
     'chart_hint' => 'Hasta tres niveles desde la persona elegida.',
     'change_root' => 'Cambiar persona inicial',
     'invalid_root' => 'Selección no válida. Elige de nuevo.',
+    'pick_root_only_managers' => 'La lista solo incluye personas con al menos un informe directo (línea o matriz).',
+    'no_managers' => 'Nadie en el directorio es responsable todavía — añade relaciones jefe–informe para usar la vista general.',
 ];

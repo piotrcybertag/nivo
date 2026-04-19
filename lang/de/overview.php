@@ -15,4 +15,6 @@ return [
     'chart_hint' => 'Bis zu drei Ebenen ab der gewählten Person.',
     'change_root' => 'Startperson ändern',
     'invalid_root' => 'Ungültige Auswahl. Bitte erneut wählen.',
+    'pick_root_only_managers' => 'In der Liste stehen nur Personen mit mindestens einem direkten Mitarbeitenden (Linie oder Matrix).',
+    'no_managers' => 'Niemand im Verzeichnis ist Vorgesetzte/r — legen Sie Vorgesetzten-Beziehungen an, um die Übersicht zu nutzen.',
 ];

@@ -172,16 +172,32 @@ $schematHandler = static function (): View|RedirectResponse {
 };
 
 $przegladHandler = static function (): View|RedirectResponse {
+    $jestKtokolwiekWBazie = Pracownik::query()->exists();
+
     $pracownicyDoWyboru = Pracownik::query()
+        ->where(function ($q) {
+            $q->whereHas('podwladni')
+                ->orWhereHas('podwladniMatrix');
+        })
         ->orderBy('nazwisko')
         ->orderBy('imie')
         ->get(['id', 'imie', 'nazwisko', 'stanowisko', 'grupa']);
+
+    if (! $jestKtokolwiekWBazie) {
+        return view('przeglad', [
+            'wyborKorzenia' => false,
+            'korzen' => null,
+            'pracownicyDoWyboru' => collect(),
+            'przegladPustyPowod' => 'brak_pracownikow',
+        ]);
+    }
 
     if ($pracownicyDoWyboru->isEmpty()) {
         return view('przeglad', [
             'wyborKorzenia' => false,
             'korzen' => null,
             'pracownicyDoWyboru' => $pracownicyDoWyboru,
+            'przegladPustyPowod' => 'brak_szefow',
         ]);
     }
 
@@ -191,12 +207,17 @@ $przegladHandler = static function (): View|RedirectResponse {
             'wyborKorzenia' => true,
             'korzen' => null,
             'pracownicyDoWyboru' => $pracownicyDoWyboru,
+            'przegladPustyPowod' => null,
         ]);
     }
 
     $korzenId = is_numeric($rawKorzen) ? (int) $rawKorzen : 0;
     $korzen = Pracownik::query()
         ->whereKey($korzenId)
+        ->where(function ($q) {
+            $q->whereHas('podwladni')
+                ->orWhereHas('podwladniMatrix');
+        })
         ->first();
 
     if ($korzen === null) {
@@ -219,6 +240,7 @@ $przegladHandler = static function (): View|RedirectResponse {
         'wyborKorzenia' => false,
         'korzen' => $korzen,
         'pracownicyDoWyboru' => $pracownicyDoWyboru,
+        'przegladPustyPowod' => null,
     ]);
 };
 

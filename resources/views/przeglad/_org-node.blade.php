@@ -17,13 +17,11 @@
         @if($poziom === 0)
             @php
                 $n = $wszyscyPodwladni->count();
-                $cols = $n > 4 ? 4 : $n;
-                $multiRow = $n > 4;
             @endphp
             <div class="org-connector-wrap">
                 <svg class="org-lines-svg" aria-hidden="true"></svg>
                 <div class="org-children">
-                    <div class="org-branch {{ $multiRow ? 'org-branch--multi-row' : '' }}" style="--child-count: {{ $cols }}; grid-template-columns: repeat({{ $cols }}, 1fr);">
+                    <div class="org-branch" style="--child-count: {{ $n }}; grid-template-columns: repeat({{ $n }}, 1fr);">
                         <div class="org-branch-children">
                             @foreach($pracownik->podwladni as $pod)
                                 @include('przeglad._org-node', ['pracownik' => $pod, 'isChild' => true, 'czyMatrix' => false, 'przegladPoziom' => 1])

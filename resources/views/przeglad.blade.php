@@ -8,6 +8,7 @@
             <div class="max-w-lg mx-auto px-4 py-6">
                 <h1 class="text-xl font-semibold text-gray-900 mb-2">{{ __('overview.pick_root_title') }}</h1>
                 <p class="text-sm text-gray-600 mb-4">{{ __('overview.pick_root_intro') }}</p>
+                <p class="text-sm text-gray-500 mb-4">{{ __('overview.pick_root_only_managers') }}</p>
                 <form method="get" action="{{ \App\Support\AppUrl::route('przeglad') }}" class="space-y-4">
                     <div>
                         <label for="przeglad-korzen" class="block text-sm font-medium text-gray-700 mb-1">{{ __('overview.pick_root_label') }}</label>
@@ -25,9 +26,13 @@
                 </form>
             </div>
         @else
-            @if($pracownicyDoWyboru->isEmpty())
+            @if(($przegladPustyPowod ?? null) === 'brak_pracownikow')
                 <div class="schemat-wrapper flex justify-center items-start min-h-[40vh]">
                     <p class="schemat-empty">{{ __('overview.empty') }}</p>
+                </div>
+            @elseif(($przegladPustyPowod ?? null) === 'brak_szefow')
+                <div class="schemat-wrapper flex justify-center items-start min-h-[40vh]">
+                    <p class="schemat-empty max-w-md text-center">{{ __('overview.no_managers') }}</p>
                 </div>
             @else
                 <div class="px-4 pt-4 pb-2 max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2">

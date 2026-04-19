@@ -15,4 +15,6 @@ return [
     'chart_hint' => 'Jusqu’à trois niveaux à partir de la personne choisie.',
     'change_root' => 'Changer la personne de départ',
     'invalid_root' => 'Choix invalide. Veuillez sélectionner à nouveau.',
+    'pick_root_only_managers' => 'La liste ne comprend que les personnes ayant au moins un subordonné direct (ligne ou matrice).',
+    'no_managers' => 'Personne dans l’annuaire n’est manager pour l’instant — ajoutez des liens hiérarchiques pour utiliser la vue d’ensemble.',
 ];

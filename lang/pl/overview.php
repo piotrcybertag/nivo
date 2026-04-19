@@ -15,4 +15,6 @@ return [
     'chart_hint' => 'Do trzech poziomów od wybranej osoby.',
     'change_root' => 'Zmień osobę startową',
     'invalid_root' => 'Nieprawidłowy wybór osoby. Wybierz ponownie.',
+    'pick_root_only_managers' => 'Na liście są tylko osoby mające co najmniej jednego podwładnego (linia lub matrix).',
+    'no_managers' => 'Nikt w kartotece nie jest przełożonym — dodaj relacje szef–podwładny, aby skorzystać z przeglądu.',
 ];

@@ -15,4 +15,6 @@ return [
     'chart_hint' => 'Up to three levels from the selected person.',
     'change_root' => 'Change starting person',
     'invalid_root' => 'Invalid selection. Please choose again.',
+    'pick_root_only_managers' => 'The list only includes people with at least one direct report (line or matrix).',
+    'no_managers' => 'No one in the directory is a manager yet — add manager links to use the overview.',
 ];
