@@ -35,6 +35,16 @@
                 <dt style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">{{ __('employees.label_group') }}</dt>
                 <dd style="margin: 0.25rem 0 0; font-size: 1rem;">{{ $pracownik->grupa ? __('employees.yes') : __('employees.no') }}</dd>
             </div>
+            @if (! $pracownik->grupa)
+            <div>
+                <dt style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">{{ __('employees.label_wymiar') }}</dt>
+                <dd style="margin: 0.25rem 0 0; font-size: 1rem;">{{ $pracownik->wymiar !== null ? number_format((float) $pracownik->wymiar, 1, '.', '') : __('employees.dash') }}</dd>
+            </div>
+            <div>
+                <dt style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">{{ __('employees.label_wynagrodzenie') }}</dt>
+                <dd style="margin: 0.25rem 0 0; font-size: 1rem;">{{ $pracownik->wynagrodzenie !== null ? number_format((float) $pracownik->wynagrodzenie, 2, '.', '') : __('employees.dash') }}</dd>
+            </div>
+            @endif
             <div>
                 <dt style="font-weight: 600; color: #6b7280; font-size: 0.875rem;">{{ __('employees.field_manager_id') }}</dt>
                 <dd style="margin: 0.25rem 0 0; font-size: 1rem;">{{ $pracownik->id_szefa ?? __('employees.dash') }}</dd>

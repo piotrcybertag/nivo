@@ -19,12 +19,16 @@ class Pracownik extends Model
         'nazwisko',
         'stanowisko',
         'grupa',
+        'wymiar',
+        'wynagrodzenie',
         'id_szefa',
         'szef_matrix',
     ];
 
     protected $casts = [
         'grupa' => 'boolean',
+        'wymiar' => 'decimal:1',
+        'wynagrodzenie' => 'decimal:2',
     ];
 
     /**

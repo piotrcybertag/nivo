@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 
 class PracownicyTableService
 {
@@ -19,7 +19,8 @@ class PracownicyTableService
             return 'pracownicy';
         }
         $prefix = $this->sanitizeTyp($typ);
-        return $prefix === '' ? 'pracownicy' : $prefix . '_pracownicy';
+
+        return $prefix === '' ? 'pracownicy' : $prefix.'_pracownicy';
     }
 
     /**
@@ -54,6 +55,7 @@ class PracownicyTableService
             WHERE p.id IN (SELECT id FROM subtree) AND (COALESCE(p.grupa, 0) = 0)";
         }
         $result = DB::select($sql, $rootIds);
+
         return (int) ($result[0]->c ?? 0);
     }
 
@@ -90,6 +92,8 @@ class PracownicyTableService
             $table->string('nazwisko');
             $table->string('stanowisko');
             $table->boolean('grupa')->default(false);
+            $table->decimal('wymiar', 2, 1)->nullable();
+            $table->decimal('wynagrodzenie', 12, 2)->nullable();
             $table->foreignId('id_szefa')->nullable()->constrained($tableName)->nullOnDelete();
             $table->foreignId('szef_matrix')->nullable()->constrained($tableName)->nullOnDelete();
             $table->timestamps();

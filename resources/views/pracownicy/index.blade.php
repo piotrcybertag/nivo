@@ -3,8 +3,23 @@
 @section('title', __('employees.page_title'))
 
 @section('content')
+    @php
+        $indexUrl = \App\Support\AppUrl::route('kartoteki.pracownicy.index');
+        $sortLink = function (string $col) use ($indexUrl, $q, $sort, $dir) {
+            $nextDir = 'asc';
+            if ($sort === $col) {
+                $nextDir = $dir === 'asc' ? 'desc' : 'asc';
+            }
+            $qs = array_filter(['q' => $q, 'sort' => $col, 'dir' => $nextDir], fn ($v) => $v !== null && $v !== '');
+
+            return $indexUrl.(str_contains($indexUrl, '?') ? '&' : '?').http_build_query($qs);
+        };
+    @endphp
     <style>
         .pracownik-akcja-link:hover, .pracownik-akcja-btn:hover { opacity: 0.8; background: rgba(0,0,0,0.06); }
+        .pracownicy-sort-th a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; border-radius: 0.25rem; padding: 0.125rem 0; }
+        .pracownicy-sort-th a:hover { color: #1e40af; text-decoration: underline; }
+        .pracownicy-sort-th--active a { color: #1e40af; font-weight: 700; }
     </style>
     <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <h1 style="font-size: 1.75rem; font-weight: 600; color: #111; margin: 0;">{{ __('employees.heading') }}</h1>
@@ -15,16 +30,35 @@
         @endif
     </div>
 
+    <form method="get" action="{{ $indexUrl }}" style="margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem;">
+        <input type="hidden" name="sort" value="{{ $sort }}">
+        <input type="hidden" name="dir" value="{{ $dir }}">
+        <label for="pracownicy-q" style="font-weight: 500; color: #374151;">{{ __('employees.search_label') }}</label>
+        <input id="pracownicy-q" type="search" name="q" value="{{ $q }}" placeholder="{{ __('employees.search_placeholder') }}" autocomplete="off" style="flex: 1; min-width: 12rem; max-width: 28rem; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 1rem;">
+        <button type="submit" style="padding: 0.5rem 1rem; background: #374151; color: #fff; border: none; border-radius: 0.375rem; font-weight: 500; cursor: pointer;">{{ __('employees.search_button') }}</button>
+        @if($q !== '')
+            <a href="{{ $indexUrl }}?{{ http_build_query(array_filter(['sort' => $sort, 'dir' => $dir], fn ($v) => $v !== null && $v !== '')) }}" style="color: #2563eb; font-size: 0.875rem;">{{ __('employees.search_clear') }}</a>
+        @endif
+    </form>
+
     <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-radius: 0.5rem;">
             <thead>
                 <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
                     <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">{{ __('employees.col_id') }}</th>
                     <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">{{ __('employees.col_first_name') }}</th>
-                    <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">{{ __('employees.col_last_name') }}</th>
-                    <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">{{ __('employees.col_position') }}</th>
-                    <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">{{ __('employees.col_group') }}</th>
-                    <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">{{ __('employees.col_manager') }}</th>
+                    <th class="pracownicy-sort-th {{ $sort === 'nazwisko' ? 'pracownicy-sort-th--active' : '' }}" style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;" @if($sort === 'nazwisko') aria-sort="{{ $dir === 'asc' ? 'ascending' : 'descending' }}" @endif>
+                        <a href="{{ $sortLink('nazwisko') }}" title="{{ __('employees.sort_click') }}">{{ __('employees.col_last_name') }}@if($sort === 'nazwisko') <span aria-hidden="true">{{ $dir === 'asc' ? '↑' : '↓' }}</span>@endif</a>
+                    </th>
+                    <th class="pracownicy-sort-th {{ $sort === 'stanowisko' ? 'pracownicy-sort-th--active' : '' }}" style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;" @if($sort === 'stanowisko') aria-sort="{{ $dir === 'asc' ? 'ascending' : 'descending' }}" @endif>
+                        <a href="{{ $sortLink('stanowisko') }}" title="{{ __('employees.sort_click') }}">{{ __('employees.col_position') }}@if($sort === 'stanowisko') <span aria-hidden="true">{{ $dir === 'asc' ? '↑' : '↓' }}</span>@endif</a>
+                    </th>
+                    <th class="pracownicy-sort-th {{ $sort === 'grupa' ? 'pracownicy-sort-th--active' : '' }}" style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;" @if($sort === 'grupa') aria-sort="{{ $dir === 'asc' ? 'ascending' : 'descending' }}" @endif>
+                        <a href="{{ $sortLink('grupa') }}" title="{{ __('employees.sort_click') }}">{{ __('employees.col_group') }}@if($sort === 'grupa') <span aria-hidden="true">{{ $dir === 'asc' ? '↑' : '↓' }}</span>@endif</a>
+                    </th>
+                    <th class="pracownicy-sort-th {{ $sort === 'szef' ? 'pracownicy-sort-th--active' : '' }}" style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;" @if($sort === 'szef') aria-sort="{{ $dir === 'asc' ? 'ascending' : 'descending' }}" @endif>
+                        <a href="{{ $sortLink('szef') }}" title="{{ __('employees.sort_click') }}">{{ __('employees.col_manager') }}@if($sort === 'szef') <span aria-hidden="true">{{ $dir === 'asc' ? '↑' : '↓' }}</span>@endif</a>
+                    </th>
                     <th style="text-align: left; padding: 0.75rem 1rem; font-weight: 600;">{{ __('employees.col_matrix_manager') }}</th>
                     <th style="text-align: right; padding: 0.75rem 1rem; font-weight: 600;">{{ __('employees.col_actions') }}</th>
                 </tr>
@@ -57,7 +91,13 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="padding: 2rem; text-align: center; color: #6b7280;">{{ __('employees.empty') }} @if($canAddPracownik)<a href="{{ \App\Support\AppUrl::route('kartoteki.pracownicy.create') }}" style="color: #2563eb;">{{ __('employees.add_first') }}</a>@else {{ __('employees.empty_free_plan') }} @endif</td>
+                        <td colspan="8" style="padding: 2rem; text-align: center; color: #6b7280;">
+                            @if($q !== '')
+                                {{ __('employees.search_empty') }}
+                            @else
+                                {{ __('employees.empty') }} @if($canAddPracownik)<a href="{{ \App\Support\AppUrl::route('kartoteki.pracownicy.create') }}" style="color: #2563eb;">{{ __('employees.add_first') }}</a>@else {{ __('employees.empty_free_plan') }} @endif
+                            @endif
+                        </td>
                     </tr>
                 @endforelse
             </tbody>

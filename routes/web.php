@@ -7,7 +7,10 @@ use App\Http\Controllers\LandingFunkcjaController;
 use App\Http\Controllers\LandingLocaleController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PracownikController;
+use App\Http\Controllers\StanowiskaController;
+use App\Http\Controllers\StanowiskaGrupaWynagrodzenController;
 use App\Http\Controllers\UzytkownikController;
+use App\Http\Controllers\WynagrodzeniaRaportController;
 use App\Models\Pracownik;
 use App\Models\Uzytkownik;
 use App\Services\PracownicyTableService;
@@ -225,6 +228,12 @@ $registerLocaleAppRoutes = static function (string $loc) use ($schematHandler, $
 
     Route::get('/schemat', $schematHandler)->name($loc.'.schemat');
     Route::get('/przeglad', $przegladHandler)->name($loc.'.przeglad');
+    Route::get('/stanowiska', [StanowiskaController::class, 'index'])->name($loc.'.stanowiska');
+    Route::post('/stanowiska/kolejnosc', [StanowiskaController::class, 'saveOrder'])->name($loc.'.stanowiska.kolejnosc');
+    Route::get('/stanowiska/siatka-wynagrodzen', [StanowiskaGrupaWynagrodzenController::class, 'index'])->name($loc.'.stanowiska.siatka-wynagrodzen');
+    Route::post('/stanowiska/siatka-wynagrodzen', [StanowiskaGrupaWynagrodzenController::class, 'save'])->name($loc.'.stanowiska.siatka-wynagrodzen.save');
+
+    Route::get('/wynagrodzenia', [WynagrodzeniaRaportController::class, 'index'])->name($loc.'.wynagrodzenia.raport');
 
     Route::get('/instrukcja', static function () {
         if (! session('uzytkownik_id') || session('login_via_link')) {
@@ -460,9 +469,12 @@ Route::get('/upgrade', static fn (Request $r) => $legacyToLocalePath($r, 'upgrad
 Route::get('/upgrade/sukces', static fn (Request $r) => $legacyToLocalePath($r, 'upgrade/sukces'));
 Route::get('/schemat', static fn (Request $r) => $legacyToLocalePath($r, 'schemat'));
 Route::get('/przeglad', static fn (Request $r) => $legacyToLocalePath($r, 'przeglad'));
+Route::get('/stanowiska', static fn (Request $r) => $legacyToLocalePath($r, 'stanowiska'));
+Route::get('/stanowiska/siatka-wynagrodzen', static fn (Request $r) => $legacyToLocalePath($r, 'stanowiska/siatka-wynagrodzen'));
 Route::get('/instrukcja', static fn (Request $r) => $legacyToLocalePath($r, 'instrukcja'));
 Route::get('/ustawienia', static fn (Request $r) => $legacyToLocalePath($r, 'ustawienia'));
 Route::get('/kartoteki', static fn (Request $r) => $legacyToLocalePath($r, 'kartoteki'));
+Route::get('/wynagrodzenia', static fn (Request $r) => $legacyToLocalePath($r, 'wynagrodzenia'));
 
 Route::any('/kartoteki/{any?}', static function (Request $request, ?string $any = null) {
     $base = 'kartoteki'.($any !== null && $any !== '' ? '/'.$any : '');

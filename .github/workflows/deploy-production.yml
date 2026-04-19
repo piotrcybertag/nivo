@@ -1,3 +1,4 @@
+# Secrets: FTP_HOST, FTP_USER, FTP_PASSWORD, FTP_REMOTE_PATH
 name: Deploy to Production
 
 on:
@@ -23,6 +24,20 @@ jobs:
       # kończy się fałszywym „brak tagu” i cichym pełnym deployem (git ls-files).
       - name: Fetch tags from origin
         run: git fetch origin --prune --tags --force
+
+      - name: Wymagane secrets (FTP)
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_REMOTE: ${{ secrets.FTP_REMOTE_PATH }}
+        run: |
+          err=0
+          [ -n "$FTP_HOST" ] || { echo "::error::Brak secret FTP_HOST"; err=1; }
+          [ -n "$FTP_USER" ] || { echo "::error::Brak secret FTP_USER"; err=1; }
+          [ -n "$FTP_PASSWORD" ] || { echo "::error::Brak secret FTP_PASSWORD"; err=1; }
+          [ -n "$FTP_REMOTE" ] || { echo "::error::Brak secret FTP_REMOTE_PATH"; err=1; }
+          exit $err
 
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp

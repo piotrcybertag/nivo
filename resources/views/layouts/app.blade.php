@@ -69,6 +69,10 @@
         .przeglad-zoom-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #1e40af; background: #fff; color: #1e40af; font-size: 1.5rem; font-weight: 600; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: background 0.15s, color 0.15s; }
         .przeglad-zoom-btn:hover { background: #1e40af; color: #fff; }
         .przeglad-zoom-out { font-size: 1.75rem; }
+        /* Ikony widełek siatki wynagrodzeń (raport + edycja) — w layoucie, bo bez Vite ładuje się tylko CDN Tailwind */
+        .wyn-raport-band { display: inline-flex; align-items: center; justify-content: center; width: 1.35rem; height: 1.35rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 800; line-height: 1; flex-shrink: 0; cursor: default; }
+        .wyn-raport-band--below { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .wyn-raport-band--above { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
     </style>
     @include('partials.analytics')
 </head>
@@ -89,6 +93,8 @@
                         @if(session('uzytkownik_id'))
                             @if(!session('login_via_link'))
                                 <a href="{{ AppUrl::route('kartoteki.pracownicy.index') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.employees') }}</a>
+                                <a href="{{ AppUrl::route('wynagrodzenia.raport') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.salaries') }}</a>
+                                <a href="{{ AppUrl::route('stanowiska') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.positions') }}</a>
                             @endif
                             <a href="{{ AppUrl::route('schemat') }}" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.org_chart') }}</a>
                             <a href="{{ AppUrl::route('przeglad') }}" target="_blank" class="text-sm font-semibold text-gray-800 hover:text-violet-700">{{ __('app.nav.overview') }}</a>
@@ -128,6 +134,8 @@
             @if(session('uzytkownik_id'))
                 @if(!session('login_via_link'))
                     <a href="{{ AppUrl::route('kartoteki.pracownicy.index') }}" class="hover:text-violet-700">{{ __('app.nav.employees') }}</a>
+                    <a href="{{ AppUrl::route('wynagrodzenia.raport') }}" class="hover:text-violet-700">{{ __('app.nav.salaries') }}</a>
+                    <a href="{{ AppUrl::route('stanowiska') }}" class="hover:text-violet-700">{{ __('app.nav.positions') }}</a>
                 @endif
                 <a href="{{ AppUrl::route('schemat') }}" class="hover:text-violet-700">{{ __('app.nav.org_chart') }}</a>
                 <a href="{{ AppUrl::route('przeglad') }}" target="_blank" class="hover:text-violet-700">{{ __('app.nav.overview') }}</a>
